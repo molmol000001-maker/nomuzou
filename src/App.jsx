@@ -431,7 +431,7 @@ const confirmPicker = () => {
       {/* header */}
       <header className="bg-white/70 border-b border-slate-200 w-full">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="font-semibold">飲酒管理</div>
+          <div className="font-semibold">飲酒管理アプリ nomuzou</div>
           <div className="text-right w-32">
             <div className="text-[10px] text-slate-500">酔い度: {stage.label}</div>
             <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
