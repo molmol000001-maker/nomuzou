@@ -1074,6 +1074,13 @@ const confirmPicker = () => {
     </motion.div>
   )}
 </AnimatePresence>
+    
+      {/* 注意書き */}
+<div className="text-center text-[10px] text-slate-400 mt-4 mb-20 px-4 leading-relaxed">
+  ※ 本アプリは医療的な診断や正確な酩酊度測定を行うものではありません。<br />
+  飲酒は体調に合わせて節度を持ってお楽しみください。
+</div>
+
 
 
 
