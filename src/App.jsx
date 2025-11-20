@@ -21,6 +21,7 @@ const loadState = () => {
 
 
 export default function App() {
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   // --- helpers ---
   const gramsOfAlcohol = (abvPct, ml) => ml * (abvPct / 100) * 0.8; // 0.8g/ml
   const fmtMMSS = (s) => {
