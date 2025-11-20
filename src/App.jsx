@@ -93,9 +93,6 @@ const [picker, setPicker] = useState({
   note: "",      // 補足表示（カクテルの説明）
 });
 
-// === ドリンクピッカー state ===
-const [picker, setPicker] = useState({ /* ...省略... */ });
-
 // ⬇⬇⬇ ここに “復元 useEffect” を置く（既存の復元処理があれば置き換え）
 useEffect(() => {
   const saved = loadState();
