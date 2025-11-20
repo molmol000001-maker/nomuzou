@@ -429,18 +429,37 @@ const confirmPicker = () => {
   // ---------- UI ----------
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50">
-      {/* header */}
-      <header className="bg-white/70 border-b border-slate-200 w-full">
-        <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="font-semibold">飲酒管理 nomuzou</div>
-          <div className="text-right w-32">
-            <div className="text-[10px] text-slate-500">酔い度: {stage.label}</div>
-            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
-              <div className={`h-full ${stage.bar}`} style={{ width: `${scoreExact}%` }} />
-            </div>
-          </div>
-        </div>
-      </header>
+{/* header */}
+<header className="bg-white/70 border-b border-slate-200 w-full">
+  <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-start gap-3">
+    {/* 左側：タイトル＋説明＋？ボタン */}
+    <div className="flex-1">
+      <div className="flex items-center gap-2">
+        <div className="font-semibold">飲酒管理 nomuzou</div>
+        <button
+          type="button"
+          onClick={() => setIsHelpOpen(true)}
+          className="flex items-center justify-center rounded-full border border-slate-300 w-6 h-6 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+          aria-label="nomuzou の使い方を見る"
+        >
+          ?
+        </button>
+      </div>
+      <p className="mt-1 text-[11px] text-slate-600 leading-snug">
+        🍺 飲んだお酒のボタンをタップすると、次の1杯までの休憩タイマーが動きます。
+      </p>
+    </div>
+
+    {/* 右側：酔い度表示（既存そのまま） */}
+    <div className="text-right w-32">
+      <div className="text-[10px] text-slate-500">酔い度: {stage.label}</div>
+      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
+        <div className={`h-full ${stage.bar}`} style={{ width: `${scoreExact}%` }} />
+      </div>
+    </div>
+  </div>
+</header>
+
 
       {/* main */}
       <main className="w-full max-w-md flex-1 px-4 pt-3 pb-20" // ← pb-20 を足す（高さ≒80px）
@@ -691,6 +710,47 @@ const confirmPicker = () => {
         </section>
 
       </main>
+
+      {/* === Help Modal === */}
+{isHelpOpen && (
+  <div
+    className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40"
+    onClick={() => setIsHelpOpen(false)}
+  >
+    <div
+      className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <h2 className="text-lg font-semibold text-slate-900">
+          nomuzou の使い方
+        </h2>
+        <button
+          type="button"
+          onClick={() => setIsHelpOpen(false)}
+          className="text-slate-400 hover:text-slate-600 text-xl leading-none"
+          aria-label="閉じる"
+        >
+          ×
+        </button>
+      </div>
+
+      <ol className="list-decimal list-inside space-y-1 text-sm text-slate-700 mb-3">
+        <li>飲んだお酒のボタンをタップします。</li>
+        <li>次の一杯までの休憩タイマーが自動でセットされます。</li>
+        <li>タイマーが 0:00 になったら次の1杯の目安です。</li>
+        <li>まとめて飲んだり種類を変えるときも、飲むたびにボタンを押してください。</li>
+        <li>ソフトドリンクを飲んでソフトドリンクボタンを押すと、タイマーボーナスが入り待ち時間が10分短縮されます。</li>
+      </ol>
+
+      <p className="text-xs text-slate-500 leading-relaxed">
+        ※ nomuzou は「飲み過ぎ防止のペース管理」をサポートするツールです。
+        体調に合わせて無理のない飲酒を心がけてください。
+      </p>
+    </div>
+  </div>
+)}
+
 
       {/* === ゲート用オーバーレイ === */}
       <AnimatePresence>
