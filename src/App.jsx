@@ -384,20 +384,24 @@ const confirmPicker = () => {
     ? Math.floor((nowSec - lastAlcoholTs) / 1000)
     : 0;
 
-  // ベース残り（直近一杯由来の残り待ち）
-  const remainingBaseSec = Math.max(0, baseSec - Math.max(0, elapsed));
-  minCooldownSec = remainingBaseSec;
+// ベース残り
+const remainingBaseSec = Math.max(0, baseSec - Math.max(0, elapsed));
+minCooldownSec = remainingBaseSec;
 
-  // 目標スコアまでの自然減衰時間（残り秒）
-  const targetBaseSec = secondsToTarget(A_now, A_target, burnRate);
+// 目標スコアまでの自然減衰時間
+const targetBaseSec = secondsToTarget(A_now, A_target, burnRate);
 
+// 友好的上限（残り上限）
+const friendlyRemainingSec = Math.max(0, friendlyCapSec - elapsed);
 
+// clamp(natural, lower=minCooldown, upper=friendlyRemaining)
 const policyBaseSec = useMemo(() => {
   const natural = targetBaseSec;
   const lower = minCooldownSec;
   const upper = friendlyRemainingSec;
   return Math.min(upper, Math.max(natural, lower));
 }, [targetBaseSec, minCooldownSec, friendlyRemainingSec]);
+
 
 
 
