@@ -478,31 +478,40 @@ const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
           style={{ display: tab === "main" ? "grid" : "none" }}
         >
           {/* タイマー行 */}
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold tracking-tight">{fmtMMSS(nextOkSec)}</div>
-              {nextOkSec > 0 && (
-                <div className="text-[11px] text-slate-500">
-                  （{new Date(nowSec + nextOkSec * 1000).toTimeString().slice(0, 5)} 目安）
-                </div>
-              )}
-              {waterBonusSec > 0 && (
-                <div className="text-[11px] text-slate-500">
-                  ソフトドリンク効果: -{Math.floor(waterBonusSec / 60)}分
-                </div>
-              )}
-            </div>
-            <button
-              onClick={addWater}
-              className="h-11 px-4 rounded-xl bg-slate-100 font-semibold active:scale-[.98]"
-            >
-              ソフトドリンク
-            </button>
-                      <div className="text-[11px] text-slate-500">
-  体内アルコール: {A_now.toFixed(1)} g
+        <div className="flex items-center justify-between">
+
+  {/* 左ブロック */}
+  <div>
+    <div className="text-2xl font-bold tracking-tight">{fmtMMSS(nextOkSec)}</div>
+
+    {nextOkSec > 0 && (
+      <div className="text-[11px] text-slate-500">
+        （{new Date(nowSec + nextOkSec * 1000).toTimeString().slice(0, 5)} 目安）
+      </div>
+    )}
+
+    {waterBonusSec > 0 && (
+      <div className="text-[11px] text-slate-500">
+        ソフトドリンク効果: -{Math.floor(waterBonusSec / 60)}分
+      </div>
+    )}
+  </div>
+
+  {/* ★ 追加：ソフトドリンクボタン「左横」に体内アルコール */}
+  <div className="text-[11px] text-slate-500 mr-3">
+    {A_now.toFixed(2)} g
+  </div>
+
+  {/* ボタン */}
+  <button
+    onClick={addWater}
+    className="h-11 px-4 rounded-xl bg-slate-100 font-semibold active:scale-[.98]"
+  >
+    ソフトドリンク
+  </button>
+
 </div>
 
-          </div>
 
 
 
