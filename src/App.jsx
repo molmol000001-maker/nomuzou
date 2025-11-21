@@ -401,16 +401,17 @@ policyBaseSec = Math.max(targetBaseSec, minCooldownSec);
  // これまでに消化したベース時間
  const baseConsumedSec = Math.max(0, baseSec - remainingBaseSec);
  // すでに消費済みのボーナス（＝ベース消化ぶんから切り崩された分）
- const bonusConsumedSec = Math.min(waterBonusBudgetSec, baseConsumedSec);
- // 現時点の残りボーナス予算
- const bonusRemainingSec = Math.max(0, waterBonusBudgetSec - bonusConsumedSec);
- // 今フレームで使えるボーナス（ベースの残りと予算の小さい方）
- const bonusUsable = Math.min(bonusRemainingSec, remainingBaseSec);
+const bonusConsumedSec = Math.min(waterBonusSec, baseConsumedSec);
+const bonusRemainingSec = Math.max(0, waterBonusSec - bonusConsumedSec);
+const bonusUsable = Math.min(bonusRemainingSec, remainingBaseSec);
+
+
  // 無条件ボーナス適用（ただし加算は任意ウォーター時のみ）
- const nextOkSec = Math.max(
-   0,
-   Math.floor(policyBaseSec - (waterBonusSec || 0))
- );
+const nextOkSec = Math.max(
+  0,
+  Math.floor(policyBaseSec - bonusUsable)
+);
+
 
   // ---------- ステージ判定 ----------
   const stageInfo = (s) => {
