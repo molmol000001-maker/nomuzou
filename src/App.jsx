@@ -391,10 +391,8 @@ const confirmPicker = () => {
   // 目標スコアまでの自然減衰時間（残り秒）
   const targetBaseSec = secondsToTarget(A_now, A_target, burnRate);
 
-  // 友好的上限は“残り上限”として経過に応じて減少させる
-  const friendlyRemainingSec = Math.max(0, friendlyCapSec - elapsed);
  // clamp(natural, lower=minCooldown, upper=friendlyRemaining)
-policyBaseSec = Math.max(targetBaseSec, minCooldownSec);
+const policyBaseSec = Math.max(targetBaseSec, minCooldownSec);
 
 
    // —— ボーナス予算を、消化に応じて減らして適用 ——
