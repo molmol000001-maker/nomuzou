@@ -1149,7 +1149,10 @@ const confirmPicker = () => {
     </div>
 
     {/* 一番下の細いリンク（法的ページ） */}
-    <div className="pb-1 mt-1 text-[10px] text-slate-400 text-center max-w-md mx-auto">
+    <div
+  className="mt-1 text-[10px] text-slate-400 text-center max-w-md mx-auto"
+  style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 32px)" }}
+>
       <a href="/about.html" className="hover:underline">
         使い方
       </a>
