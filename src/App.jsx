@@ -392,7 +392,10 @@ const confirmPicker = () => {
   const targetBaseSec = secondsToTarget(A_now, A_target, burnRate);
 
  // clamp(natural, lower=minCooldown, upper=friendlyRemaining)
-const policyBaseSec = Math.max(targetBaseSec, minCooldownSec);
+const policyBaseSec = useMemo(() => {
+  return Math.max(targetBaseSec, minCooldownSec);
+}, [targetBaseSec, minCooldownSec]);
+
 
 
    // —— ボーナス予算を、消化に応じて減らして適用 ——
