@@ -382,14 +382,7 @@ const policyBaseSec = Math.max(targetBaseSec, remainingBaseSec);
 
 
 
-   // —— ボーナス予算を、消化に応じて減らして適用 ——
- // これまでに消化したベース時間
- const baseConsumedSec = Math.max(0, baseSec - remainingBaseSec);
- // すでに消費済みのボーナス（＝ベース消化ぶんから切り崩された分）
-const bonusConsumedSec = Math.min(waterBonusSec, baseConsumedSec);
-const bonusRemainingSec = Math.max(0, waterBonusSec - bonusConsumedSec);
-const bonusUsable = Math.min(bonusRemainingSec, remainingBaseSec);
-
+const bonusUsable = waterBonusSec;
 
 const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
 
