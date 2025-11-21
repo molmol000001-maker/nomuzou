@@ -490,10 +490,13 @@ const confirmPicker = () => {
 
 
       {/* main */}
-      <main className="w-full max-w-md flex-1 px-4 pt-3   style={{
-    // footerHeight がまだ 0 のとき用の最低値 96px（= pb-24 相当）
-    paddingBottom: Math.max(footerHeight,+ 24),
-  }}>
+<main
+  className="w-full max-w-md flex-1 px-4 pt-3"
+  style={{
+    // nav の高さがまだ取れてないときは 96px を最低値にする
+    paddingBottom: footerHeight ? footerHeight + 16 : 96,
+  }}
+>
 
         {/* メイン画面 */}
         <section
