@@ -404,10 +404,12 @@ const bonusRemainingSec = Math.max(0, waterBonusSec - bonusConsumedSec);
 const bonusUsable = Math.min(bonusRemainingSec, remainingBaseSec);
 
 
- // 無条件ボーナス適用（ただし加算は任意ウォーター時のみ）
+// 次の1杯OKまで
 const nextOkSec = Math.max(
   0,
-  Math.floor(policyBaseSec - bonusUsable)
+  Math.floor(
+    Math.max(0, policyBaseSec - bonusUsable)
+  )
 );
 
 
