@@ -1090,24 +1090,52 @@ const confirmPicker = () => {
   className="fixed bottom-0 inset-x-0 z-50
              border-t border-slate-200 bg-white/95 backdrop-blur"
 >
-  <div className="max-w-md mx-auto grid grid-cols-3 h-16 px-2"
-       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-    {["main", "history", "settings"].map((t) => (
-      <button
-        key={t}
-        onClick={() => setTab(t)}
-        className={`flex flex-col items-center justify-center gap-0.5 ${
-          tab === t ? "text-slate-900" : "text-slate-400"
-        }`}
+  <div
+    className="max-w-md mx-auto px-2"
+    style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+  >
+    {/* 下タブ（メイン／履歴／設定） */}
+    <div className="grid grid-cols-3 h-16">
+      {["main", "history", "settings"].map((t) => (
+        <button
+          key={t}
+          onClick={() => setTab(t)}
+          className={`flex flex-col items-center justify-center gap-0.5 ${
+            tab === t ? "text-slate-900" : "text-slate-400"
+          }`}
+        >
+          <span className="text-[11px] font-medium">
+            {t === "main" ? "メイン" : t === "history" ? "履歴" : "設定"}
+          </span>
+        </button>
+      ))}
+    </div>
+
+    {/* 一番下の細いリンク（法的ページ） */}
+    <div className="pb-1 mt-1 text-[10px] text-slate-400 text-center">
+      <a
+        href="/about.html"
+        className="hover:underline"
       >
-        <span className="text-[11px] font-medium">
-          {t === "main" ? "メイン" : t === "history" ? "履歴" : "設定"}
-        </span>
-      </button>
-    ))}
+        使い方
+      </a>
+      <span className="mx-1">・</span>
+      <a
+        href="/privacy.html"
+        className="hover:underline"
+      >
+        プライバシー
+      </a>
+      <span className="mx-1">・</span>
+      <a
+        href="/disclaimer.html"
+        className="hover:underline"
+      >
+        免責事項
+      </a>
+    </div>
   </div>
 </nav>
-
     </div>
   );
 }
