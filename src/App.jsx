@@ -394,10 +394,8 @@ const confirmPicker = () => {
   // 友好的上限は“残り上限”として経過に応じて減少させる
   const friendlyRemainingSec = Math.max(0, friendlyCapSec - elapsed);
  // clamp(natural, lower=minCooldown, upper=friendlyRemaining)
-  const policyBaseSec = Math.min(
-    Math.max(targetBaseSec, minCooldownSec),
-    friendlyRemainingSec > 0 ? friendlyRemainingSec : Infinity
-  );
+policyBaseSec = Math.max(targetBaseSec, minCooldownSec);
+
 
    // —— ボーナス予算を、消化に応じて減らして適用 ——
  // これまでに消化したベース時間
