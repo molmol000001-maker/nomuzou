@@ -238,22 +238,6 @@ useEffect(() => {
 // 現在の残存量：表示は毎秒更新（secTick 依存）
   const A_now = useMemo(() => decayedA(nowSec), [nowSec, lastTs, A_g, burnRate]);
 
-  // ---- 直近60分の摂取量（g）と友好的上限 ----
-  const gramsRecent60 = (() => {
-   const cutoff = nowSec - 60 * 60 * 1000;
-    let sum = 0;
-    for (const h of history) {
-      if (h.type === "alcohol" && h.ts >= cutoff) {
-        const abv = Number(h.abv || 0);
-        const vol = Number(h.ml || 0);
-        sum += vol * (abv / 100) * 0.8;
-      }
-    }
-    return sum;
-  })();
-
-  // 20g→30分を基準に比例して上限を伸ばす
-  const friendlyCapSec = Math.max(0, Math.round((gramsRecent60 / 20) * 1800));
 
   // ---------- 時間経過でアルコール減少 ----------
   useEffect(() => {
@@ -391,16 +375,9 @@ minCooldownSec = remainingBaseSec;
 // 目標スコアまでの自然減衰時間
 const targetBaseSec = secondsToTarget(A_now, A_target, burnRate);
 
-// 友好的上限（残り上限）
-const friendlyRemainingSec = Math.max(0, friendlyCapSec - elapsed);
-
 // clamp(natural, lower=minCooldown, upper=friendlyRemaining)
-const policyBaseSec = useMemo(() => {
-  const natural = targetBaseSec;
-  const lower = minCooldownSec;
-  const upper = friendlyRemainingSec;
-  return Math.min(upper, Math.max(natural, lower));
-}, [targetBaseSec, minCooldownSec, friendlyRemainingSec]);
+const policyBaseSec = Math.max(targetBaseSec, remainingBaseSec);
+
 
 
 
@@ -414,13 +391,8 @@ const bonusRemainingSec = Math.max(0, waterBonusSec - bonusConsumedSec);
 const bonusUsable = Math.min(bonusRemainingSec, remainingBaseSec);
 
 
-// 次の1杯OKまで
-const nextOkSec = Math.max(
-  0,
-  Math.floor(
-    Math.max(0, policyBaseSec - bonusUsable)
-  )
-);
+const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
+
 
 
   // ---------- ステージ判定 ----------
