@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nomuzou の使い方</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.7; padding: 24px; max-width: 720px; margin: auto; }
+    h1 { font-size: 24px; margin-bottom: 16px; }
+    h2 { margin-top: 28px; font-size: 20px; }
+    p { margin-top: 12px; }
+    ul { margin-top: 12px; padding-left: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>nomuzou の使い方</h1>
+
+<p>nomuzou は、飲酒ペースを整え、飲み過ぎを防ぐための「休憩タイマー付き飲酒管理ツール」です。飲んだお酒の種類と量を選ぶと、体重・年齢・性別などをもとに次の一杯までの休憩時間を自動計算します。</p>
+
+<h2>nomuzou の目的</h2>
+<p>飲み会を安全に楽しむための “目安” を提供することです。医学的な診断や正確な血中アルコール濃度を示すものではありません。</p>
+
+<h2>機能の概要</h2>
+<ul>
+  <li><strong>次の一杯までのタイマー</strong>：飲酒量から計算されたクールダウン時間を表示します。</li>
+  <li><strong>酔い度の目安（0〜100）</strong>：体重・性別などをもとにアルコール量を指標化します。</li>
+  <li><strong>水（ソフトドリンク）の効果</strong>：水分補給により休憩時間を短縮します。</li>
+  <li><strong>履歴</strong>：過去に飲んだ量や時間を記録します。</li>
+  <li><strong>設定</strong>：体重・年齢・性別の変更が可能です。</li>
+</ul>
+
+<h2>アルコール計算について</h2>
+<p>アルコール量は <strong>g = ml × (度数 ÷ 100) × 0.8</strong> に基づき計算しています。代謝速度は年齢と性別により変動し、一般的な代謝量を参考に設定しています。</p>
+
+<h2>酔い度の目安</h2>
+<ul>
+  <li>0〜15：しらふ</li>
+  <li>15〜45：ほろ酔い</li>
+  <li>45〜75：パーティ（注意）</li>
+  <li>75〜90：酩酊（危険）</li>
+  <li>90〜100：非常に危険（飲酒中止推奨）</li>
+</ul>
+
+<h2>データ保存</h2>
+<p>当アプリは飲酒履歴や設定情報をブラウザの localStorage に保存します。これは利用者の端末内だけに保存され、サーバーへ送信されることはありません。</p>
+
+<h2>注意事項</h2>
+<ul>
+  <li>当アプリの計算結果は医学的なものではありません。</li>
+  <li>飲酒運転は法律で禁止されています。</li>
+  <li>空腹、体調、薬などにより酔いやすさは大きく変わります。</li>
+  <li>過度な飲酒は健康を害する恐れがあります。</li>
+</ul>
+
+</body>
+</html>
