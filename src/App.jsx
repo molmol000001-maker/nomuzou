@@ -462,8 +462,8 @@ const confirmPicker = () => {
 
 
       {/* main */}
-      <main className="w-full max-w-md flex-1 px-4 pt-3 pb-20" // ← pb-20 を足す（高さ≒80px）
-      >
+      <main className="w-full max-w-md flex-1 px-4 pt-3 pb-32">
+
         {/* メイン画面 */}
         <section
           className="bg-white rounded-2xl p-4 shadow-sm grid gap-4"
@@ -1091,7 +1091,7 @@ const confirmPicker = () => {
              border-t border-slate-200 bg-white/95 backdrop-blur"
 >
   <div
-    className="max-w-md mx-auto px-2"
+    className="max-w-md mx-auto px-4"
     style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
   >
     {/* 下タブ（メイン／履歴／設定） */}
@@ -1112,30 +1112,22 @@ const confirmPicker = () => {
     </div>
 
     {/* 一番下の細いリンク（法的ページ） */}
-    <div className="pb-1 mt-1 text-[10px] text-slate-400 text-center">
-      <a
-        href="/about.html"
-        className="hover:underline"
-      >
+    <div className="pb-1 mt-1 text-[10px] text-slate-400 text-center max-w-md mx-auto">
+      <a href="/about.html" className="hover:underline">
         使い方
       </a>
       <span className="mx-1">・</span>
-      <a
-        href="/privacy.html"
-        className="hover:underline"
-      >
+      <a href="/privacy.html" className="hover:underline">
         プライバシー
       </a>
       <span className="mx-1">・</span>
-      <a
-        href="/disclaimer.html"
-        className="hover:underline"
-      >
+      <a href="/disclaimer.html" className="hover:underline">
         免責事項
       </a>
     </div>
   </div>
 </nav>
+
     </div>
   );
 }
