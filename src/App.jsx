@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+
 
 // ← import群の下あたりに追加
 const STORAGE_KEY = "nomel_v1";
@@ -22,6 +23,33 @@ const loadState = () => {
 
 export default function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+    const footerRef = useRef(null);
+  const [footerHeight, setFooterHeight] = useState(0);
+
+    useEffect(() => {
+    if (!footerRef.current) return;
+
+    const el = footerRef.current;
+
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      setFooterHeight(rect.height);
+    };
+
+    update(); // 初回
+
+    // サイズ変化を監視（機種・向きが変わったとき用）
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(el);
+    window.addEventListener("resize", update);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
   // --- helpers ---
   const gramsOfAlcohol = (abvPct, ml) => ml * (abvPct / 100) * 0.8; // 0.8g/ml
   const fmtMMSS = (s) => {
@@ -462,7 +490,10 @@ const confirmPicker = () => {
 
 
       {/* main */}
-      <main className="w-full max-w-md flex-1 px-4 pt-3 pb-40">
+      <main className="w-full max-w-md flex-1 px-4 pt-3   style={{
+    // footerHeight がまだ 0 のとき用の最低値 96px（= pb-24 相当）
+    paddingBottom: Math.max(footerHeight, 96),
+  }}>
 
         {/* メイン画面 */}
         <section
@@ -1087,6 +1118,7 @@ const confirmPicker = () => {
 
 {/* footer */}
 <nav
+  ref={footerRef}
   className="fixed bottom-0 inset-x-0 z-50
              border-t border-slate-200 bg-white/95 backdrop-blur"
 >
