@@ -498,7 +498,13 @@ const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
             >
               ソフトドリンク
             </button>
+                      <div className="text-[11px] text-slate-500">
+  体内アルコール: {A_now.toFixed(1)} g
+</div>
+
           </div>
+
+
 
 
 
