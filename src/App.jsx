@@ -391,10 +391,13 @@ const confirmPicker = () => {
   // 目標スコアまでの自然減衰時間（残り秒）
   const targetBaseSec = secondsToTarget(A_now, A_target, burnRate);
 
- // clamp(natural, lower=minCooldown, upper=friendlyRemaining)
+
 const policyBaseSec = useMemo(() => {
-  return Math.max(targetBaseSec, minCooldownSec);
-}, [targetBaseSec, minCooldownSec]);
+  const natural = targetBaseSec;
+  const lower = minCooldownSec;
+  const upper = friendlyRemainingSec;
+  return Math.min(upper, Math.max(natural, lower));
+}, [targetBaseSec, minCooldownSec, friendlyRemainingSec]);
 
 
 
