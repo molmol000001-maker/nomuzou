@@ -622,7 +622,7 @@ const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
           {history.length === 0 ? (
             <div className="text-slate-500">まだ履歴はありません。</div>
           ) : (
-
+  <>
     <div className="mb-3 p-3 rounded-xl bg-slate-100 text-sm font-medium text-slate-700">
       総アルコール量:{" "}
       {history
@@ -641,6 +641,7 @@ const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
                 </div>
               ))}
             </div>
+     </>
           )}
         </section>
 
