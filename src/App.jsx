@@ -459,6 +459,10 @@ const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
         <div className={`h-full ${stage.bar}`} style={{ width: `${scoreExact}%` }} />
       </div>
     </div>
+      {/* ★追加：体内の推定残アルコール量 */}
+  <div className="mt-1 text-[10px] text-slate-500">
+    体内の推定残アルコール量: {A_now.toFixed(2)} g
+  </div>
   </div>
 </header>
 
@@ -495,11 +499,6 @@ const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
         ソフトドリンク効果: -{Math.floor(waterBonusSec / 60)}分
       </div>
     )}
-  </div>
-
-  {/* ★ 追加：ソフトドリンクボタン「左横」に体内アルコール */}
-  <div className="text-[11px] text-slate-500 mr-3">
-    {A_now.toFixed(2)} g
   </div>
 
   {/* ボタン */}
