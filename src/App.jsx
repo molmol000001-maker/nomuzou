@@ -24,8 +24,17 @@ const loadState = () => {
 export default function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
+  const [isPro, setIsPro] = useState(false);
+
     const footerRef = useRef(null);
   const [footerHeight, setFooterHeight] = useState(0);
+
+    useEffect(() => {
+    // iOSネイティブからメッセージ受信
+    window.proStatusUpdate = function (status) {
+      setIsPro(status === "true");
+    };
+  }, []);
 
     useEffect(() => {
     if (!footerRef.current) return;
