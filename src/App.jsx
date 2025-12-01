@@ -256,6 +256,18 @@ const onOpenHelp = () => setHelpOpen(true);
     closePicker();
   };
 
+  + // ---------------------------------------------
++ // 飲み会終了（全リセット）
++ // ---------------------------------------------
++ const endSession = () => {
++   setAg(0);
++   setLastTs(Date.now());
++   setHistory([]);
++   setWaterBonusSec(0);
++   setLastAlcoholTs(0);
++   setLastDrinkGrams(0);
++ };
+
   // ---------------------------------------------
   // 水
   // ---------------------------------------------
