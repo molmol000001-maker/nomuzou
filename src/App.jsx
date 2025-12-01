@@ -35,6 +35,9 @@ export default function App() {
   const [weightKg, setWeightKg] = useState(75);
   const [age, setAge] = useState(35);
   const [sex, setSex] = useState("male");
+  const [weightInput, setWeightInput] = useState(String(weightKg));
+const [ageInput, setAgeInput] = useState(String(age));
+
 
   const [waterBonusSec, setWaterBonusSec] = useState(0);
 
