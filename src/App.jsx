@@ -329,6 +329,7 @@ const onOpenHelp = () => setHelpOpen(true);
             setWeightKg={setWeightKg}
             setAge={setAge}
             setSex={setSex}
+            endSession={endSession}
           />
         )}
       </main>
