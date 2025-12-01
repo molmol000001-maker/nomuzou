@@ -1,14 +1,19 @@
-// src/components/DrinkPicker.jsx
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { COCKTAIL_STRENGTHS } from "../utils/constants";
 
+// -------------------------------------------
+// カクテル強度プリセット（安全のためPicker内に定義）
+// -------------------------------------------
+const COCKTAIL_STRENGTHS = [
+  { key: "weak", label: "弱め（4%）", abv: 4, note: "ライトなカクテル" },
+  { key: "normal", label: "普通（8%）", abv: 8, note: "一般的なカクテル" },
+  { key: "strong", label: "強め（12%）", abv: 12, note: "アルコール強め" },
+];
 
 export default function DrinkPicker({
   picker,
   setPicker,
   PRESETS,
-  COCKTAIL_STRENGTHS,
   closePicker,
   confirmPicker,
 }) {
@@ -16,7 +21,6 @@ export default function DrinkPicker({
     <AnimatePresence>
       {picker.open && (
         <motion.div
-          key="picker"
           className="fixed inset-0 z-[65] bg-black/40 backdrop-blur-sm grid place-items-end sm:place-items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -31,7 +35,8 @@ export default function DrinkPicker({
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="font-bold text-lg">{picker.label}</div>
+            {/* label が undefined でも安全 */}
+            <div className="font-bold text-lg">{picker.label ?? ""}</div>
 
             {/* beer */}
             {picker.kind === "beer" && (
@@ -137,56 +142,6 @@ export default function DrinkPicker({
               </div>
             )}
 
-            {/* chuhai */}
-            {picker.kind === "chuhai" && (
-              <div className="mt-3 grid gap-4">
-                <div>
-                  <div className="text-xs text-slate-500">量（ml）</div>
-                  <div className="flex gap-2">
-                    {PRESETS.chuhai.sizes.map((v) => (
-                      <button
-                        key={v}
-                        onClick={() =>
-                          setPicker((p) => ({
-                            ...p,
-                            ml: v,
-                          }))
-                        }
-                        className={`h-10 px-3 rounded-xl border font-semibold ${
-                          picker.ml === v
-                            ? "bg-slate-900 text-white"
-                            : "bg-white"
-                        }`}
-                      >
-                        {v}ml
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-slate-500">度数（1〜9%）</div>
-                  <input
-                    type="range"
-                    min={PRESETS.chuhai.abvMin}
-                    max={PRESETS.chuhai.abvMax}
-                    step="1"
-                    value={picker.abv}
-                    onChange={(e) =>
-                      setPicker((p) => ({
-                        ...p,
-                        abv: Number(e.target.value),
-                      }))
-                    }
-                    className="w-full"
-                  />
-                  <div className="text-sm text-slate-600">
-                    選択: {picker.abv}%
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* other */}
             {picker.kind === "other" && (
               <div className="mt-3 grid gap-4">
@@ -230,10 +185,6 @@ export default function DrinkPicker({
                   <div className="text-sm text-slate-600">
                     選択: {picker.abv}%
                   </div>
-                </div>
-
-                <div className="text-[11px] text-slate-500">
-                  例: 250ml / 7%（缶サワー・自作カクテルなど）
                 </div>
               </div>
             )}
