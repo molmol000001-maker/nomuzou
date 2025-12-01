@@ -1,57 +1,123 @@
+// src/hooks/useAlcoholState.js
 import { useState, useEffect, useMemo } from "react";
 import { saveState, loadState } from "../utils/storage";
+import {
+  calcGrams,
+  calcBurnRate,
+  calcDistribution,
+  calcDecayed,
+  secondsToTarget,
+  stageInfo,
+  C_AT_100,
+} from "../utils/alcoholCalc";
 
 export function useAlcoholState() {
+  // ----- プロ基本情報 -----
+  const [isPro, setIsPro] = useState(false);
+
+  // ----- 基本ステート -----
   const [history, setHistory] = useState([]);
-  const [A_g, setAg] = useState(0);
-  const [lastTs, setLastTs] = useState(Date.now());
-  const [waterBonusSec, setWaterBonusSec] = useState(0);
-  const [lastAlcoholTs, setLastAlcoholTs] = useState(0);
-  const [lastDrinkGrams, setLastDrinkGrams] = useState(0);
   const [weightKg, setWeightKg] = useState(75);
   const [age, setAge] = useState(35);
   const [sex, setSex] = useState("male");
-  const [booted, setBooted] = useState(false);
 
-  // ← loadState() の復元と saveState() の保存をここに集約
+  // ----- アルコール状態 -----
+  const [A_g, setAg] = useState(0);
+  const [lastTs, setLastTs] = useState(Date.now());
+  const [lastAlcoholTs, setLastAlcoholTs] = useState(0);
+  const [lastDrinkGrams, setLastDrinkGrams] = useState(0);
+
+  // ----- ソフトドリンク -----
+  const [waterBonusSec, setWaterBonusSec] = useState(0);
+  const [waterFX, setWaterFX] = useState(false);
+
+  // ----- ピッカー -----
+  const [picker, setPicker] = useState({
+    open: false,
+    kind: null,
+    label: "",
+    ml: 0,
+    abv: 0,
+    sizeKey: null,
+    note: "",
+  });
+
+  const [booted, setBooted] = useState(false); // 復元完了
+  const [goodNightOpen, setGoodNightOpen] = useState(false);
+
+  // ----- save/load -----
   useEffect(() => {
     const saved = loadState();
-    if (saved) {
-      setHistory(saved.history ?? []);
-      setAg(saved.A_g ?? 0);
-      setLastTs(Date.now());
-      setWaterBonusSec(saved.waterBonusSec ?? 0);
-      setLastAlcoholTs(saved.lastAlcoholTs ?? 0);
-      setLastDrinkGrams(saved.lastDrinkGrams ?? 0);
-
-      setWeightKg(saved.weightKg ?? 75);
-      setAge(saved.age ?? 35);
-      setSex(saved.sex ?? "male");
+    if (!saved) {
+      setBooted(true);
+      return;
     }
+
+    setHistory(saved.history ?? []);
+    setWeightKg(saved.weightKg ?? 75);
+    setAge(saved.age ?? 35);
+    setSex(saved.sex ?? "male");
+
+    // burnRate を元に自然減衰して復元
+    const br = calcBurnRate(saved.sex ?? "male", saved.age ?? 35);
+    const now = Date.now();
+    const dt_h = (now - (saved.lastTs ?? now)) / 3600000;
+    const decayed = Math.max(0, (saved.A_g ?? 0) - br * Math.max(dt_h, 0));
+
+    setAg(decayed);
+    setLastTs(now);
+    setLastAlcoholTs(saved.lastAlcoholTs ?? 0);
+    setLastDrinkGrams(saved.lastDrinkGrams ?? 0);
+    setWaterBonusSec(saved.waterBonusSec ?? 0);
+
+    setIsPro(saved.isPro ?? false);
+
     setBooted(true);
   }, []);
 
   useEffect(() => {
     if (!booted) return;
+
     const id = setTimeout(() => {
       saveState({
-        A_g, lastTs, history,
-        waterBonusSec, lastAlcoholTs, lastDrinkGrams,
-        weightKg, age, sex,
+        A_g,
+        lastTs,
+        history,
+        lastAlcoholTs,
+        lastDrinkGrams,
+        waterBonusSec,
+        weightKg,
+        age,
+        sex,
+        isPro,
       });
     }, 200);
-    return () => clearTimeout(id);
-  }, [booted, A_g, lastTs, history, waterBonusSec, lastAlcoholTs, lastDrinkGrams, weightKg, age, sex]);
 
-  return {
-    history, setHistory,
-    A_g, setAg,
-    lastTs, setLastTs,
-    waterBonusSec, setWaterBonusSec,
-    lastAlcoholTs, setLastAlcoholTs,
-    lastDrinkGrams, setLastDrinkGrams,
-    weightKg, setWeightKg,
-    age, setAge,
-    sex, setSex,
-  };
-}
+    return () => clearTimeout(id);
+  }, [
+    booted,
+    A_g,
+    lastTs,
+    history,
+    lastAlcoholTs,
+    lastDrinkGrams,
+    waterBonusSec,
+    weightKg,
+    age,
+    sex,
+    isPro,
+  ]);
+
+  // --------------------------------------------------------------------
+  //  アルコール計算系
+  // --------------------------------------------------------------------
+
+  const r = useMemo(() => calcDistribution(sex), [sex]);
+  const burnRate = useMemo(() => calcBurnRate(sex, age), [sex, age]);
+
+  // nowSec は useTimer.js 側で管理
+  const computeA = (nowSec) => calcDecayed(A_g, lastTs, burnRate, nowSec);
+
+  const computeScore = (A_now) => {
+    const C = r > 0 && weightKg > 0 ? A_now / (r * weightKg) : 0;
+    const score = Math.max(0, Math.min(100, (C / C_AT_1
