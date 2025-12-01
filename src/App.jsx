@@ -5,8 +5,6 @@ import Header from "./components/Header";
 import MainPanel from "./components/MainPanel";
 import HistoryPanel from "./components/HistoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
-import { PRESETS, COCKTAIL_STRENGTHS } from "./utils/constants";
-
 
 import WaterGate from "./components/WaterGate";
 import WaterFX from "./components/WaterFX";
@@ -15,45 +13,30 @@ import GoodNightOverlay from "./components/GoodNightOverlay";
 
 import { motion, AnimatePresence } from "framer-motion";
 
-// ---------------------------------------------------------
-// localStorage key
-// ---------------------------------------------------------
-const STORAGE_KEY = "nomel_v1";
-
-// ---------------------------------------------------------
-// App本体
-// ---------------------------------------------------------
 export default function App() {
-  // UI states
   const [tab, setTab] = useState("main");
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isPro, setIsPro] = useState(false);
 
   const footerRef = useRef(null);
   const [footerHeight, setFooterHeight] = useState(0);
 
-  // timer
   const [nowSec, setNowSec] = useState(Date.now());
 
-  // drink states
   const [history, setHistory] = useState([]);
   const [A_g, setAg] = useState(0);
   const [lastTs, setLastTs] = useState(Date.now());
   const [lastAlcoholTs, setLastAlcoholTs] = useState(0);
   const [lastDrinkGrams, setLastDrinkGrams] = useState(0);
 
-  // profile states
   const [weightKg, setWeightKg] = useState(75);
   const [age, setAge] = useState(35);
   const [sex, setSex] = useState("male");
 
-  // water bonus
   const [waterBonusSec, setWaterBonusSec] = useState(0);
 
   const [waterFX, setWaterFX] = useState(false);
   const [goodNightOpen, setGoodNightOpen] = useState(false);
 
-  // picker
   const [picker, setPicker] = useState({
     open: false,
     kind: null,
@@ -66,25 +49,49 @@ export default function App() {
 
   const [booted, setBooted] = useState(false);
 
-  // ---------------------------------------------------------
-  // iOS ネイティブ連携
-  // ---------------------------------------------------------
-  useEffect(() => {
-    window.proStatusUpdate = function (status) {
-      setIsPro(status === "true");
-    };
-  }, []);
+  // ---------------------------------------------
+  // DrinkPicker プリセット
+  // ---------------------------------------------
+  const PRESETS = {
+    beer: {
+      sizes: [200, 350, 500],
+      abv: 5,
+      label: "ビール",
+    },
+    sake: {
+      sizes: [
+        { k: "ochoko", ml: 50, label: "お猪口 (50ml)" },
+        { k: "ichigo", ml: 180, label: "一合 (180ml)" },
+      ],
+      abv: 15,
+      label: "日本酒",
+    },
+    chuhai: {
+      sizes: [250, 350, 500],
+      abvMin: 3,
+      abvMax: 9,
+      label: "酎ハイ",
+    },
+    other: {
+      mlMin: 50,
+      mlMax: 500,
+      mlStep: 25,
+      abvMin: 1,
+      abvMax: 60,
+      abvStep: 1,
+      label: "その他",
+    },
+  };
 
-  // ---------------------------------------------------------
-  // footerの高さ監視
-  // ---------------------------------------------------------
+  // ---------------------------------------------
+  // footer 高さ監視
+  // ---------------------------------------------
   useEffect(() => {
     if (!footerRef.current) return;
     const el = footerRef.current;
 
     const update = () => {
-      const rect = el.getBoundingClientRect();
-      setFooterHeight(rect.height);
+      setFooterHeight(el.getBoundingClientRect().height);
     };
     update();
 
@@ -98,9 +105,9 @@ export default function App() {
     };
   }, []);
 
-  // ---------------------------------------------------------
+  // ---------------------------------------------
   // 状態復元
-  // ---------------------------------------------------------
+  // ---------------------------------------------
   useEffect(() => {
     const saved = loadState();
     if (!saved) {
@@ -108,23 +115,18 @@ export default function App() {
       return;
     }
 
-    if (saved.isPro !== undefined) setIsPro(saved.isPro);
-
     if (saved.weightKg) setWeightKg(saved.weightKg);
     if (saved.age) setAge(saved.age);
     if (saved.sex) setSex(saved.sex);
 
-    const calcBurn = (sx, ag) => {
-      let v = sx === "male" ? 7.2 : sx === "female" ? 6.8 : 7.0;
-      if (ag < 30) v += 0.2;
-      else if (ag >= 60) v -= 0.2;
-      return Math.max(3, Math.min(12, Number(v.toFixed(1))));
-    };
-
     const now = Date.now();
     const last = Number(saved.lastTs ?? now);
     const dt_h = Math.max(0, (now - last) / 3600000);
-    const burn = calcBurn(saved.sex ?? sex, saved.age ?? age);
+
+    let burn = sex === "male" ? 7.2 : 6.8;
+    if (age < 30) burn += 0.2;
+    if (age >= 60) burn -= 0.2;
+
     const Ag = Math.max(0, Number(saved.A_g ?? 0) - burn * dt_h);
 
     setAg(Ag);
@@ -137,16 +139,13 @@ export default function App() {
     setBooted(true);
   }, []);
 
-  // ---------------------------------------------------------
-  // 状態保存
-  // ---------------------------------------------------------
+  // ---------------------------------------------
+  // 保存
+  // ---------------------------------------------
   useEffect(() => {
     if (!booted) return;
-
     const id = setTimeout(() => {
       saveState({
-        version: 1,
-        isPro,
         A_g,
         lastTs,
         history,
@@ -162,7 +161,6 @@ export default function App() {
     return () => clearTimeout(id);
   }, [
     booted,
-    isPro,
     A_g,
     lastTs,
     history,
@@ -174,41 +172,45 @@ export default function App() {
     sex,
   ]);
 
-  // ---------------------------------------------------------
-  // 1秒ごとに現在時刻を更新
-  // ---------------------------------------------------------
+  // ---------------------------------------------
+  // タイマー
+  // ---------------------------------------------
   useEffect(() => {
     const id = setInterval(() => setNowSec(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // ---------------------------------------------------------
-  // アルコール減少ロジック
-  // ---------------------------------------------------------
+  // ---------------------------------------------
+  // アルコール減少
+  // ---------------------------------------------
   const burnRate = useMemo(() => {
-    let v = sex === "male" ? 7.2 : sex === "female" ? 6.8 : 7.0;
+    let v = sex === "male" ? 7.2 : 6.8;
     if (age < 30) v += 0.2;
-    else if (age >= 60) v -= 0.2;
-    return Math.max(3, Math.min(12, Number(v.toFixed(1))));
+    if (age >= 60) v -= 0.2;
+    return Math.max(3, Math.min(12, v));
   }, [sex, age]);
 
-  const decayedA = (t) => {
-    const dt_h = Math.max(0, (t - lastTs) / 3600000);
+  const A_now = useMemo(() => {
+    const dt_h = Math.max(0, (nowSec - lastTs) / 3600000);
     return Math.max(0, A_g - burnRate * dt_h);
-  };
+  }, [nowSec, lastTs, A_g, burnRate]);
 
-  const A_now = useMemo(() => decayedA(nowSec), [nowSec, lastTs, A_g, burnRate]);
+  // 次の1杯までの秒数
+  const nextOkSec = useMemo(() => {
+    const target = 10;
+    const need = A_now - target;
+    if (need <= 0) return 0;
 
-  // ---------------------------------------------------------
+    const sec = (need / burnRate) * 3600 - waterBonusSec;
+    return Math.max(0, Math.floor(sec));
+  }, [A_now, burnRate, waterBonusSec]);
+
+  // ---------------------------------------------
   // ドリンク追加
-  // ---------------------------------------------------------
+  // ---------------------------------------------
   const addDrink = (label, ml, abv) => {
-    if (history[0]?.type === "alcohol") {
-      alert("次の一杯の前にソフトドリンクを挟んでください");
-      return;
-    }
-    const now = Date.now();
     const grams = ml * (abv / 100) * 0.8;
+    const now = Date.now();
 
     setAg((v) => v + grams);
     setLastTs(now);
@@ -217,93 +219,70 @@ export default function App() {
     setWaterBonusSec(0);
 
     setHistory((h) => [
-      { id: Math.random().toString(36).slice(2), ts: now, type: "alcohol", label, ml, abv },
+      { id: Math.random().toString(36), ts: now, type: "alcohol", label, ml, abv },
       ...h,
     ]);
   };
 
-  // ---------------------------------------------------------
-  // ソフトドリンク
-  // ---------------------------------------------------------
-  const addWater = () => {
-    const now = Date.now();
-    const mandatory = history[0]?.type === "alcohol";
-
-    setHistory((h) => [
-      { id: Math.random().toString(36).slice(2), ts: now, type: "water", label: "ソフトドリンク/水" },
-      ...h,
-    ]);
-
-    if (!mandatory) {
-      setWaterBonusSec((s) => s + 600);
-    }
-
-    if (mandatory) {
-      setWaterFX(true);
-      setTimeout(() => setWaterFX(false), 1200);
-    }
-  };
-
-  // ---------------------------------------------------------
-  // DrinkPicker open/close
-  // ---------------------------------------------------------
-  const openDrinkPicker = (kind, preset) => {
+  // ---------------------------------------------
+  // openDrinkPicker（label の undefined を完全防止）
+  // ---------------------------------------------
+  const openDrinkPicker = (kind) => {
     if (history[0]?.type === "alcohol") return;
+
+    const preset = PRESETS[kind];
+
     setPicker({
       open: true,
-      ...preset,
       kind,
+      label: preset.label ?? "",
+      ml: preset.sizes ? preset.sizes[0] : 100,
+      abv: preset.abv ?? 5,
+      sizeKey: null,
+      note: "",
     });
   };
 
-  const closePicker = () => {
-    setPicker((p) => ({ ...p, open: false }));
-  };
+  const closePicker = () => setPicker((p) => ({ ...p, open: false }));
 
   const confirmPicker = () => {
     addDrink(`${picker.label} ${picker.ml}ml (${picker.abv}%)`, picker.ml, picker.abv);
     closePicker();
   };
 
-  // ---------------------------------------------------------
-  // 終了処理
-  // ---------------------------------------------------------
-  const endSession = () => {
+  // ---------------------------------------------
+  // 水
+  // ---------------------------------------------
+  const addWater = () => {
     const now = Date.now();
-    setAg(0);
-    setLastTs(now);
-    setHistory([]);
-    setWaterBonusSec(0);
-    setLastAlcoholTs(0);
-    setLastDrinkGrams(0);
+    const mandatory = history[0]?.type === "alcohol";
 
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (_) {}
+    setHistory((h) => [
+      { id: Math.random().toString(36), ts: now, type: "water", label: "ソフトドリンク/水" },
+      ...h,
+    ]);
 
-    setGoodNightOpen(true);
+    if (!mandatory) {
+      setWaterBonusSec((s) => s + 600);
+    } else {
+      setWaterFX(true);
+      setTimeout(() => setWaterFX(false), 1200);
+    }
   };
 
-  // ---------------------------------------------------------
-  // 必須ウォーター判定
-  // ---------------------------------------------------------
   const needsWater = history[0]?.type === "alcohol";
 
-  // ---------------------------------------------------------
+  // ---------------------------------------------
   // UI
-  // ---------------------------------------------------------
+  // ---------------------------------------------
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50">
 
-      {/* Header */}
       <Header
         isPro={isPro}
         A_now={A_now}
-        scoreProps={{ A_g, weightKg, sex }}
-        onHelp={() => setIsHelpOpen(true)}
       />
 
-      {/* Main content */}
       <main
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
         style={{ paddingBottom: footerHeight + 16 }}
@@ -311,17 +290,14 @@ export default function App() {
         {tab === "main" && (
           <MainPanel
             nowSec={nowSec}
-            lastAlcoholTs={lastAlcoholTs}
-            lastDrinkGrams={lastDrinkGrams}
+            nextOkSec={nextOkSec}
             waterBonusSec={waterBonusSec}
             addWater={addWater}
             openDrinkPicker={openDrinkPicker}
           />
         )}
 
-        {tab === "history" && (
-          <HistoryPanel history={history} />
-        )}
+        {tab === "history" && <HistoryPanel history={history} />}
 
         {tab === "settings" && (
           <SettingsPanel
@@ -331,16 +307,10 @@ export default function App() {
             setWeightKg={setWeightKg}
             setAge={setAge}
             setSex={setSex}
-            endSession={endSession}
           />
         )}
-
-        <div className="text-center text-[10px] text-slate-400 mt-4 px-4 leading-relaxed">
-          ※ 本アプリは医療的な診断を行うものではありません。体調に合わせて節度ある飲酒を。
-        </div>
       </main>
 
-      {/* Footer */}
       <nav
         ref={footerRef}
         className="fixed bottom-0 inset-x-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur"
@@ -361,23 +331,24 @@ export default function App() {
               </button>
             ))}
           </div>
-
-          <div className="mt-1 text-[10px] text-slate-400 text-center"
-            style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 32px)" }}>
-            <a href="/about.html" className="hover:underline">使い方</a>
-            <span className="mx-1">・</span>
-            <a href="/privacy.html" className="hover:underline">プライバシー</a>
-            <span className="mx-1">・</span>
-            <a href="/disclaimer.html" className="hover:underline">免責事項</a>
-          </div>
         </div>
       </nav>
 
       {/* overlays */}
       <AnimatePresence>
-        {needsWater && (
-          <WaterGate addWater={addWater} />
+        {picker.open && (
+          <DrinkPicker
+            picker={picker}
+            setPicker={setPicker}
+            PRESETS={PRESETS}
+            closePicker={closePicker}
+            confirmPicker={confirmPicker}
+          />
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {needsWater && <WaterGate addWater={addWater} />}
       </AnimatePresence>
 
       <AnimatePresence>
@@ -385,23 +356,7 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-{picker.open && (
-  <DrinkPicker
-    picker={picker}
-    setPicker={setPicker}
-    PRESETS={PRESETS}
-    COCKTAIL_STRENGTHS={COCKTAIL_STRENGTHS}
-    closePicker={closePicker}
-    confirmPicker={confirmPicker}
-  />
-)}
-
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {goodNightOpen && (
-          <GoodNightOverlay onClose={() => setGoodNightOpen(false)} />
-        )}
+        {goodNightOpen && <GoodNightOverlay onClose={() => setGoodNightOpen(false)} />}
       </AnimatePresence>
 
     </div>
