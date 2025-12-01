@@ -61,36 +61,43 @@ const [ageInput, setAgeInput] = useState(String(age));
   const [booted, setBooted] = useState(false);
 
   // DrinkPicker プリセット
-  const PRESETS = {
-    beer: {
-      sizes: [350, 500],
-      abv: 5,
-      label: "ビール",
-    },
-    sake: {
-      sizes: [
-        { k: "ochoko", ml: 50, label: "お猪口 (50ml)" },
-        { k: "ichigo", ml: 180, label: "一合 (180ml)" },
-      ],
-      abv: 15,
-      label: "日本酒",
-    },
-    chuhai: {
-      sizes: [250, 350, 500],
-      abvMin: 3,
-      abvMax: 9,
-      label: "酎ハイ",
-    },
-    other: {
-      mlMin: 50,
-      mlMax: 500,
-      mlStep: 25,
-      abvMin: 1,
-      abvMax: 60,
-      abvStep: 1,
-      label: "その他",
-    },
-  };
+const PRESETS = {
+  beer: {
+    sizes: [350, 500],
+    abv: 5,
+    label: "ビール",
+  },
+  sake: {
+    sizes: [
+      { k: "ochoko", ml: 50, label: "お猪口 (50ml)" },
+      { k: "ichigo", ml: 180, label: "一合 (180ml)" },
+    ],
+    abv: 15,
+    label: "日本酒",
+  },
+  chuhai: {
+    sizes: [250, 350, 500],
+    abvMin: 3,
+    abvMax: 9,
+    label: "酎ハイ",
+  },
+  cocktail: {
+    sizes: [150, 200, 300],
+    abvMin: 5,
+    abvMax: 30,
+    label: "カクテル",
+  },
+  other: {
+    mlMin: 50,
+    mlMax: 500,
+    mlStep: 25,
+    abvMin: 1,
+    abvMax: 60,
+    abvStep: 1,
+    label: "その他",
+  },
+};
+
 
   // footer 高さ監視
   useEffect(() => {
