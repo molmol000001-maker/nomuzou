@@ -288,7 +288,7 @@ const onOpenHelp = () => setHelpOpen(true);
       <Header
         isPro={isPro}
         A_now={A_now}
-        onHelp={onOpenHelp} 
+        onHelp={onHelp} 
       />
 
       <main
