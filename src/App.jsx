@@ -442,6 +442,10 @@ const nextOkSec = Math.max(0, policyBaseSec - bonusUsable);
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50">
 {/* header */}
 <header className="bg-white/70 border-b border-slate-200 w-full">
+  <div className="text-[10px] text-slate-500">
+  Pro: {isPro ? "有効" : "無効"}
+</div>
+
   <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-start gap-3">
     {/* 左側：タイトル＋説明＋？ボタン */}
     <div className="flex-1">
