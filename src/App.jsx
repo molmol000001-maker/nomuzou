@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { saveState, loadState } from "./utils/storage";
+import WaterGate from "./components/WaterGate";
+<WaterGate needsWater={needsWater} addWater={addWater} />
 
 
 
