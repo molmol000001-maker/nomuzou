@@ -1,7 +1,7 @@
 // src/components/Header.jsx
 import React from "react";
 
-export default function Header({ isPro, A_now, onOpenHelp }) {
+export default function Header({ isPro, A_now, onHelp }) {
   return (
     <header className="bg-white/70 border-b border-slate-200 w-full">
       <div className="text-[10px] text-slate-500">Pro: {isPro ? "有効" : "無効"}</div>
