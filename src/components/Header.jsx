@@ -30,7 +30,7 @@ export default function Header({ isPro, A_now, onHelp }) {
 
         {/* 右 */}
         <div className="text-right w-32">
-          <div className="text-[10px] text-slate-500">体内アルコール</div>
+          <div className="text-[10px] text-slate-500">酔い度</div>
 
           <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
             <div
@@ -40,7 +40,7 @@ export default function Header({ isPro, A_now, onHelp }) {
           </div>
 
           <div className="mt-1 text-[10px] text-slate-500">
-            残量: {A_now.toFixed(2)} g
+            体内アルコール残量目安: {A_now.toFixed(2)} g
           </div>
         </div>
       </div>
