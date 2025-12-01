@@ -142,6 +142,11 @@ useEffect(() => {
     return;
   }
 
+  if (saved.isPro !== undefined) {
+  setIsPro(saved.isPro);
+}
+
+
   // プロフィール復元
   if (saved.weightKg) setWeightKg(saved.weightKg);
   if (saved.age) setAge(saved.age);
