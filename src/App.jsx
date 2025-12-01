@@ -302,6 +302,7 @@ const onOpenHelp = () => setHelpOpen(true);
     addWater={addWater}
     openDrinkPicker={openDrinkPicker}
     addDrink={addDrink}
+    setGoodNightOpen={setGoodNightOpen}
   />
 )}
 
