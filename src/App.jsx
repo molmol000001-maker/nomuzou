@@ -47,6 +47,13 @@ export default function App() {
     note: "",
   });
 
+  // ---------------------------------------------
+// ヘルプ表示
+// ---------------------------------------------
+const [helpOpen, setHelpOpen] = useState(false);
+const onOpenHelp = () => setHelpOpen(true);
+
+
   const [booted, setBooted] = useState(false);
 
   // ---------------------------------------------
@@ -360,6 +367,42 @@ export default function App() {
       <AnimatePresence>
         {goodNightOpen && <GoodNightOverlay onClose={() => setGoodNightOpen(false)} />}
       </AnimatePresence>
+
+      {/* Help Overlay */}
+<AnimatePresence>
+  {helpOpen && (
+    <motion.div
+      className="fixed inset-0 bg-black/50 z-[80] grid place-items-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => setHelpOpen(false)}
+    >
+      <motion.div
+        className="bg-white p-6 rounded-xl w-[90%] max-w-sm"
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.9 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="font-bold mb-2 text-lg">使い方</h2>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          飲んだお酒の種類をタップすると、「次の1杯までの休憩時間」が自動計算されます。
+          <br /><br />
+          ソフトドリンクを飲むと休憩時間が短くなります。
+        </p>
+
+        <button
+          className="mt-5 w-full h-10 bg-slate-800 text-white rounded-lg"
+          onClick={() => setHelpOpen(false)}
+        >
+          閉じる
+        </button>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
 
     </div>
   );
