@@ -310,17 +310,22 @@ const [ageInput, setAgeInput] = useState(String(age));
 
         {tab === "history" && <HistoryPanel history={history} />}
 
-        {tab === "settings" && (
-          <SettingsPanel
-            weightKg={weightKg}
-            age={age}
-            sex={sex}
-            setWeightKg={setWeightKg}
-            setAge={setAge}
-            setSex={setSex}
-            endSession={endSession}
-          />
-        )}
+{tab === "settings" && (
+  <SettingsPanel
+    weightKg={weightKg}
+    setWeightKg={setWeightKg}
+    weightInput={weightInput}
+    setWeightInput={setWeightInput}
+    age={age}
+    setAge={setAge}
+    ageInput={ageInput}
+    setAgeInput={setAgeInput}
+    sex={sex}
+    setSex={setSex}
+    endSession={endSession}
+  />
+)}
+
       </main>
 
       <nav
