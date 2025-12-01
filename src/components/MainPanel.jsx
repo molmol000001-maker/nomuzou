@@ -9,6 +9,7 @@ export default function MainPanel({
   addWater,
   openDrinkPicker,
   addDrink,
+  setGoodNightOpen,
 }) {
   // 表示用フォーマット
   const fmtMMSS = (s) => {
