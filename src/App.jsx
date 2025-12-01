@@ -5,6 +5,8 @@ import Header from "./components/Header";
 import MainPanel from "./components/MainPanel";
 import HistoryPanel from "./components/HistoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
+import { PRESETS, COCKTAIL_STRENGTHS } from "./utils/constants";
+
 
 import WaterGate from "./components/WaterGate";
 import WaterFX from "./components/WaterFX";
@@ -383,14 +385,17 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {picker.open && (
-          <DrinkPicker
-            picker={picker}
-            setPicker={setPicker}
-            closePicker={closePicker}
-            confirmPicker={confirmPicker}
-          />
-        )}
+{picker.open && (
+  <DrinkPicker
+    picker={picker}
+    setPicker={setPicker}
+    PRESETS={PRESETS}
+    COCKTAIL_STRENGTHS={COCKTAIL_STRENGTHS}
+    closePicker={closePicker}
+    confirmPicker={confirmPicker}
+  />
+)}
+
       </AnimatePresence>
 
       <AnimatePresence>
