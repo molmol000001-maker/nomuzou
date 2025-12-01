@@ -120,4 +120,141 @@ export function useAlcoholState() {
 
   const computeScore = (A_now) => {
     const C = r > 0 && weightKg > 0 ? A_now / (r * weightKg) : 0;
-    const score = Math.max(0, Math.min(100, (C / C_AT_1
+    const score = Math.max(0, Math.min(100, (C / C_AT_100) * 100));
+    return { scoreExact: score, score100: Math.round(score) };
+  };
+
+  // --------------------------------------------------------------------
+  //  飲酒処理
+  // --------------------------------------------------------------------
+  const addDrink = (label, ml, abv) => {
+    if (history[0]?.type === "alcohol") return; // ゲート時は NG
+
+    const now = Date.now();
+    const grams = calcGrams(ml, abv);
+
+    setAg((a) => a + grams);
+    setLastTs(now);
+    setLastAlcoholTs(now);
+    setLastDrinkGrams(grams);
+    setWaterBonusSec(0);
+
+    setHistory((h) => [
+      {
+        id: Math.random().toString(36).slice(2),
+        ts: now,
+        type: "alcohol",
+        label,
+        abv,
+        ml,
+      },
+      ...h,
+    ]);
+  };
+
+  const addWater = () => {
+    const now = Date.now();
+    const mandatory = history[0]?.type === "alcohol";
+
+    setHistory((h) => [
+      {
+        id: Math.random().toString(36).slice(2),
+        ts: now,
+        type: "water",
+        label: "ソフトドリンク/水",
+      },
+      ...h,
+    ]);
+
+    if (mandatory) {
+      // エフェクト
+      setWaterFX(true);
+      setTimeout(() => setWaterFX(false), 1200);
+    } else {
+      setWaterBonusSec((s) => s + 600);
+    }
+  };
+
+  // --------------------------------------------------------------------
+  //  Drink Picker
+  // --------------------------------------------------------------------
+  const openDrinkPicker = (kind) => {
+    if (history[0]?.type === "alcohol") return;
+    setPicker((p) => ({ ...p, open: true, kind }));
+  };
+
+  const closePicker = () =>
+    setPicker((p) => ({
+      ...p,
+      open: false,
+    }));
+
+  const confirmPicker = () => {
+    if (!picker.label) return;
+    addDrink(picker.label, Number(picker.ml), Number(picker.abv));
+    closePicker();
+  };
+
+  // --------------------------------------------------------------------
+  //  セッション終了
+  // --------------------------------------------------------------------
+  const endSession = () => {
+    setAg(0);
+    setLastTs(Date.now());
+    setHistory([]);
+    setWaterBonusSec(0);
+    setLastAlcoholTs(0);
+    setLastDrinkGrams(0);
+
+    try {
+      localStorage.removeItem("nomel_v1");
+    } catch (_) {}
+
+    setGoodNightOpen(true);
+  };
+
+  // --------------------------------------------------------------------
+  //  外部に返す
+  // --------------------------------------------------------------------
+  return {
+    // 状態
+    isPro,
+    setIsPro,
+    history,
+    setHistory,
+
+    weightKg,
+    setWeightKg,
+    age,
+    setAge,
+    sex,
+    setSex,
+
+    A_g,
+    computeA,
+    computeScore,
+    burnRate,
+    r,
+
+    lastAlcoholTs,
+    lastDrinkGrams,
+    waterBonusSec,
+
+    picker,
+    setPicker,
+    openDrinkPicker,
+    closePicker,
+    confirmPicker,
+
+    waterFX,
+    goodNightOpen,
+    setGoodNightOpen,
+
+    // 操作系
+    addDrink,
+    addWater,
+    endSession,
+
+    needsWater: (history[0]?.type === "alcohol"),
+  };
+}
