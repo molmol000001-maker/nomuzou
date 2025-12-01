@@ -294,6 +294,8 @@ export default function App() {
             waterBonusSec={waterBonusSec}
             addWater={addWater}
             openDrinkPicker={openDrinkPicker}
+            addDrink={addDrink}                 // ← 必須!!
+            nextOkSec={calcNextOkSec()}         // ← 必須!! （後で説明）
           />
         )}
 
