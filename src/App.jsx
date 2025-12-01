@@ -390,7 +390,7 @@ const onOpenHelp = () => setHelpOpen(true);
         <p className="text-sm text-slate-600 leading-relaxed">
           飲んだお酒の種類をタップすると、「次の1杯までの休憩時間」が自動計算されます。
           <br /><br />
-          ソフトドリンクを飲むと休憩時間が短くなります。
+          ソフトドリンクを飲んでボタンを押すと、休憩時間が10分短くなります。
         </p>
 
         <button
