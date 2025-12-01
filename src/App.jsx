@@ -61,7 +61,7 @@ const onOpenHelp = () => setHelpOpen(true);
   // ---------------------------------------------
   const PRESETS = {
     beer: {
-      sizes: [200, 350, 500],
+      sizes: [350, 500],
       abv: 5,
       label: "ビール",
     },
