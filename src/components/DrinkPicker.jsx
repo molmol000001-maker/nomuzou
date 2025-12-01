@@ -1,6 +1,8 @@
 // src/components/DrinkPicker.jsx
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { COCKTAIL_STRENGTHS } from "../utils/constants";
+
 
 export default function DrinkPicker({
   picker,
