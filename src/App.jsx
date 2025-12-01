@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { saveState, loadState } from "./utils/storage";
 
@@ -12,6 +13,9 @@ import DrinkPicker from "./components/DrinkPicker";
 import GoodNightOverlay from "./components/GoodNightOverlay";
 
 import { motion, AnimatePresence } from "framer-motion";
+
+// ローカルストレージのキー（以前のコードで使っていたものに合わせる）
+const STORAGE_KEY = "nomel_v1";
 
 export default function App() {
   const [tab, setTab] = useState("main");
@@ -47,18 +51,13 @@ export default function App() {
     note: "",
   });
 
-  // ---------------------------------------------
-// ヘルプ表示
-// ---------------------------------------------
-const [helpOpen, setHelpOpen] = useState(false);
-const onOpenHelp = () => setHelpOpen(true);
-
+  // ヘルプ用
+  const [helpOpen, setHelpOpen] = useState(false);
+  const onOpenHelp = () => setHelpOpen(true);
 
   const [booted, setBooted] = useState(false);
 
-  // ---------------------------------------------
   // DrinkPicker プリセット
-  // ---------------------------------------------
   const PRESETS = {
     beer: {
       sizes: [350, 500],
@@ -90,9 +89,7 @@ const onOpenHelp = () => setHelpOpen(true);
     },
   };
 
-  // ---------------------------------------------
   // footer 高さ監視
-  // ---------------------------------------------
   useEffect(() => {
     if (!footerRef.current) return;
     const el = footerRef.current;
@@ -112,9 +109,7 @@ const onOpenHelp = () => setHelpOpen(true);
     };
   }, []);
 
-  // ---------------------------------------------
   // 状態復元
-  // ---------------------------------------------
   useEffect(() => {
     const saved = loadState();
     if (!saved) {
@@ -130,9 +125,10 @@ const onOpenHelp = () => setHelpOpen(true);
     const last = Number(saved.lastTs ?? now);
     const dt_h = Math.max(0, (now - last) / 3600000);
 
-    let burn = sex === "male" ? 7.2 : 6.8;
-    if (age < 30) burn += 0.2;
-    if (age >= 60) burn -= 0.2;
+    let burn = (saved.sex ?? sex) === "male" ? 7.2 : 6.8;
+    const ag = saved.age ?? age;
+    if (ag < 30) burn += 0.2;
+    if (ag >= 60) burn -= 0.2;
 
     const Ag = Math.max(0, Number(saved.A_g ?? 0) - burn * dt_h);
 
@@ -146,9 +142,7 @@ const onOpenHelp = () => setHelpOpen(true);
     setBooted(true);
   }, []);
 
-  // ---------------------------------------------
-  // 保存
-  // ---------------------------------------------
+  // 状態保存
   useEffect(() => {
     if (!booted) return;
     const id = setTimeout(() => {
@@ -179,17 +173,13 @@ const onOpenHelp = () => setHelpOpen(true);
     sex,
   ]);
 
-  // ---------------------------------------------
   // タイマー
-  // ---------------------------------------------
   useEffect(() => {
     const id = setInterval(() => setNowSec(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // ---------------------------------------------
   // アルコール減少
-  // ---------------------------------------------
   const burnRate = useMemo(() => {
     let v = sex === "male" ? 7.2 : 6.8;
     if (age < 30) v += 0.2;
@@ -212,9 +202,7 @@ const onOpenHelp = () => setHelpOpen(true);
     return Math.max(0, Math.floor(sec));
   }, [A_now, burnRate, waterBonusSec]);
 
-  // ---------------------------------------------
   // ドリンク追加
-  // ---------------------------------------------
   const addDrink = (label, ml, abv) => {
     const grams = ml * (abv / 100) * 0.8;
     const now = Date.now();
@@ -231,12 +219,10 @@ const onOpenHelp = () => setHelpOpen(true);
     ]);
   };
 
-  // ---------------------------------------------
-  // openDrinkPicker（label の undefined を完全防止）
-  // ---------------------------------------------
+  // DrinkPicker を開く
   const openDrinkPicker = (kind) => {
-
     const preset = PRESETS[kind];
+    if (!preset) return;
 
     setPicker({
       open: true,
@@ -256,21 +242,26 @@ const onOpenHelp = () => setHelpOpen(true);
     closePicker();
   };
 
-  + // ---------------------------------------------
-+ // 飲み会終了（全リセット）
-+ // ---------------------------------------------
-+ const endSession = () => {
-+   setAg(0);
-+   setLastTs(Date.now());
-+   setHistory([]);
-+   setWaterBonusSec(0);
-+   setLastAlcoholTs(0);
-+   setLastDrinkGrams(0);
-+ };
+  // 飲み会終了（全リセット）
+  const endSession = () => {
+    const now = Date.now();
+    setAg(0);
+    setLastTs(now);
+    setHistory([]);
+    setWaterBonusSec(0);
+    setLastAlcoholTs(0);
+    setLastDrinkGrams(0);
 
-  // ---------------------------------------------
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      // 取れなくてもアプリは動くので無視
+    }
+
+    setGoodNightOpen(true);
+  };
+
   // 水
-  // ---------------------------------------------
   const addWater = () => {
     const now = Date.now();
     const mandatory = history[0]?.type === "alcohol";
@@ -290,34 +281,29 @@ const onOpenHelp = () => setHelpOpen(true);
 
   const needsWater = history[0]?.type === "alcohol";
 
-  // ---------------------------------------------
   // UI
-  // ---------------------------------------------
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50">
-
       <Header
         isPro={isPro}
         A_now={A_now}
-        onHelp={onOpenHelp}
+        onOpenHelp={onOpenHelp}
       />
 
       <main
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
         style={{ paddingBottom: footerHeight + 16 }}
       >
-{tab === "main" && (
-  <MainPanel
-    nowSec={nowSec}
-    nextOkSec={nextOkSec}
-    waterBonusSec={waterBonusSec}
-    addWater={addWater}
-    openDrinkPicker={openDrinkPicker}
-    addDrink={addDrink}
-    setGoodNightOpen={setGoodNightOpen}
-  />
-)}
-
+        {tab === "main" && (
+          <MainPanel
+            nowSec={nowSec}
+            nextOkSec={nextOkSec}
+            waterBonusSec={waterBonusSec}
+            addWater={addWater}
+            openDrinkPicker={openDrinkPicker}
+            addDrink={addDrink}
+          />
+        )}
 
         {tab === "history" && <HistoryPanel history={history} />}
 
@@ -357,7 +343,7 @@ const onOpenHelp = () => setHelpOpen(true);
         </div>
       </nav>
 
-      {/* overlays */}
+      {/* DrinkPicker */}
       <AnimatePresence>
         {picker.open && (
           <DrinkPicker
@@ -370,54 +356,56 @@ const onOpenHelp = () => setHelpOpen(true);
         )}
       </AnimatePresence>
 
+      {/* 強制水 */}
       <AnimatePresence>
         {needsWater && <WaterGate addWater={addWater} />}
       </AnimatePresence>
 
+      {/* 水エフェクト */}
       <AnimatePresence>
         {waterFX && <WaterFX />}
       </AnimatePresence>
 
+      {/* おやすみオーバーレイ */}
       <AnimatePresence>
         {goodNightOpen && <GoodNightOverlay onClose={() => setGoodNightOpen(false)} />}
       </AnimatePresence>
 
       {/* Help Overlay */}
-<AnimatePresence>
-  {helpOpen && (
-    <motion.div
-      className="fixed inset-0 bg-black/50 z-[80] grid place-items-center"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={() => setHelpOpen(false)}
-    >
-      <motion.div
-        className="bg-white p-6 rounded-xl w-[90%] max-w-sm"
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.9 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="font-bold mb-2 text-lg">使い方</h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
-          飲んだお酒の種類をタップすると、「次の1杯までの休憩時間」が自動計算されます。
-          <br /><br />
-          ソフトドリンクを飲んでボタンを押すと、休憩時間が10分短くなります。
-        </p>
+      <AnimatePresence>
+        {helpOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 z-[80] grid place-items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setHelpOpen(false)}
+          >
+            <motion.div
+              className="bg-white p-6 rounded-xl w-[90%] max-w-sm"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="font-bold mb-2 text-lg">使い方</h2>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                飲んだお酒の種類をタップすると、「次の1杯までの休憩時間」が自動計算されます。
+                <br />
+                <br />
+                ソフトドリンクを飲んでボタンを押すと、休憩時間が10分短くなります。
+              </p>
 
-        <button
-          className="mt-5 w-full h-10 bg-slate-800 text-white rounded-lg"
-          onClick={() => setHelpOpen(false)}
-        >
-          閉じる
-        </button>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
-
-
+              <button
+                className="mt-5 w-full h-10 bg-slate-800 text-white rounded-lg"
+                onClick={() => setHelpOpen(false)}
+              >
+                閉じる
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
