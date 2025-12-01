@@ -287,17 +287,17 @@ export default function App() {
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
         style={{ paddingBottom: footerHeight + 16 }}
       >
-        {tab === "main" && (
-          <MainPanel
-            nowSec={nowSec}
-            nextOkSec={nextOkSec}
-            waterBonusSec={waterBonusSec}
-            addWater={addWater}
-            openDrinkPicker={openDrinkPicker}
-            addDrink={addDrink}                 // ← 必須!!
-            nextOkSec={calcNextOkSec()}         // ← 必須!! （後で説明）
-          />
-        )}
+{tab === "main" && (
+  <MainPanel
+    nowSec={nowSec}
+    nextOkSec={nextOkSec}
+    waterBonusSec={waterBonusSec}
+    addWater={addWater}
+    openDrinkPicker={openDrinkPicker}
+    addDrink={addDrink}
+  />
+)}
+
 
         {tab === "history" && <HistoryPanel history={history} />}
 
