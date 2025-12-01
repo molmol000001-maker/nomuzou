@@ -235,7 +235,6 @@ const onOpenHelp = () => setHelpOpen(true);
   // openDrinkPicker（label の undefined を完全防止）
   // ---------------------------------------------
   const openDrinkPicker = (kind) => {
-    if (history[0]?.type === "alcohol") return;
 
     const preset = PRESETS[kind];
 
