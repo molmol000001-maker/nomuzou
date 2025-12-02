@@ -221,6 +221,7 @@ const stage = useMemo(() => {
 }, [A_now]);
 
 
+
   // 次の1杯までの秒数
   const nextOkSec = useMemo(() => {
     const target = 10;
