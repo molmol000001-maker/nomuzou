@@ -12,6 +12,9 @@ export default function DrinkPicker({
   const preset = PRESETS[picker.kind];
   if (!preset) return null;
 
+  const isFixedML = Array.isArray(preset.sizes);            // 固定量か？
+  const isFixedABV = preset.abv && !preset.abvMin && !preset.abvMax; // 固定度数か？
+
   const setMl = (v) => setPicker((p) => ({ ...p, ml: Number(v) }));
   const setAbv = (v) => setPicker((p) => ({ ...p, abv: Number(v) }));
 
@@ -32,38 +35,70 @@ export default function DrinkPicker({
       >
         <div className="font-bold mb-4 text-lg">{preset.label}</div>
 
-        {/* === 量バー === */}
+        {/* === 量（ml） === */}
         <div className="mb-4">
           <div className="text-sm font-medium mb-1">量（ml）</div>
 
-          <input
-            type="range"
-            min={preset.mlMin ?? 1}
-            max={preset.mlMax ?? 1000}
-            step={preset.mlStep ?? 1}
-            value={picker.ml}
-            onChange={(e) => setMl(e.target.value)}
-            className="w-full"
-          />
+          {/* 固定量の場合 → ボタン表示 */}
+          {isFixedML && (
+            <div className="grid grid-cols-3 gap-2">
+              {preset.sizes.map((ml) => (
+                <button
+                  key={ml}
+                  onClick={() => setMl(ml)}
+                  className={`h-10 rounded-lg border ${
+                    picker.ml === ml
+                      ? "bg-slate-900 text-white"
+                      : "bg-white text-slate-700"
+                  }`}
+                >
+                  {ml} ml
+                </button>
+              ))}
+            </div>
+          )}
 
-          <div className="text-right text-sm">{picker.ml} ml</div>
+          {/* 可変量（スライダー） */}
+          {!isFixedML && (
+            <>
+              <input
+                type="range"
+                min={preset.mlMin ?? 1}
+                max={preset.mlMax ?? 1000}
+                step={preset.mlStep ?? 1}
+                value={picker.ml}
+                onChange={(e) => setMl(e.target.value)}
+                className="w-full"
+              />
+              <div className="text-right text-sm">{picker.ml} ml</div>
+            </>
+          )}
         </div>
 
-        {/* === 度数バー === */}
+        {/* === 度数（%） === */}
         <div className="mb-4">
           <div className="text-sm font-medium mb-1">度数（%）</div>
 
-          <input
-            type="range"
-            min={preset.abvMin ?? preset.abv}
-            max={preset.abvMax ?? preset.abv}
-            step={1}
-            value={picker.abv}
-            onChange={(e) => setAbv(e.target.value)}
-            className="w-full"
-          />
+          {/* 固定度数 → 表示だけ */}
+          {isFixedABV && (
+            <div className="text-right text-sm">{preset.abv}%</div>
+          )}
 
-          <div className="text-right text-sm">{picker.abv}%</div>
+          {/* 可変度数 → スライダー */}
+          {!isFixedABV && (
+            <>
+              <input
+                type="range"
+                min={preset.abvMin ?? preset.abv}
+                max={preset.abvMax ?? preset.abv}
+                step={1}
+                value={picker.abv}
+                onChange={(e) => setAbv(e.target.value)}
+                className="w-full"
+              />
+              <div className="text-right text-sm">{picker.abv}%</div>
+            </>
+          )}
         </div>
 
         <button
