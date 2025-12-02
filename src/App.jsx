@@ -54,6 +54,21 @@ const [ageInput, setAgeInput] = useState(String(age));
     note: "",
   });
 
+  // 酔い度ステージ
+const stage = useMemo(() => {
+  const x = A_now;
+
+  if (x < 3) return { label: "シラフ", bar: "bg-emerald-500" };
+  if (x < 10) return { label: "ほろ酔い", bar: "bg-lime-500" };
+  if (x < 20) return { label: "パーティー", bar: "bg-yellow-500" };
+  if (x < 30) return { label: "酔い", bar: "bg-orange-500" };
+  if (x < 40) return { label: "ベロベロ", bar: "bg-red-500" };
+  return { label: "危険", bar: "bg-red-700" };
+}, [A_now]);
+
+  const scoreExact = Math.min(100, A_now * 2);
+
+
   // ヘルプ用
   const [helpOpen, setHelpOpen] = useState(false);
   const onOpenHelp = () => setHelpOpen(true);
