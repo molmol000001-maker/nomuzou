@@ -1,7 +1,7 @@
 // src/components/Header.jsx
 import React from "react";
 
-export default function Header({ isPro, A_now, onOpenHelp }) {
+export default function Header({ isPro, A_now, onOpenHelp, stage, scoreExact}) {
   return (
     <header className="bg-white/70 border-b border-slate-200 w-full">
       <div className="text-[10px] text-slate-500">Pro: {isPro ? "有効" : "無効"}</div>
@@ -31,12 +31,13 @@ export default function Header({ isPro, A_now, onOpenHelp }) {
         <div className="text-right w-32">
           <div className="text-[10px] text-slate-500">酔い度</div>
 
-          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
-            <div
-              className="h-full bg-slate-500"
-              style={{ width: `${Math.min(A_now * 10, 100)}%` }}
-            />
-          </div>
+<div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
+  <div
+    className={`h-full ${stage.bar}`}
+    style={{ width: `${scoreExact}%` }}
+  />
+</div>
+
 
           <div className="mt-1 text-[10px] text-slate-500">
             体内アルコール残量目安: {A_now.toFixed(2)} g
