@@ -78,12 +78,15 @@ const PRESETS = {
     abv: 15,
     label: "日本酒",
   },
-  chuhai: {
-    sizes: [250, 350, 500],
-    abvMin: 3,
-    abvMax: 9,
-    label: "酎ハイ",
-  },
+chuhai: {
+  mlMin: 1,
+  mlMax: 1000,
+  mlStep: 1,
+  abvMin: 1,
+  abvMax: 9,
+  label: "酎ハイ",
+},
+
   cocktail: {
     sizes: [150, 200, 300],
     abvMin: 5,
