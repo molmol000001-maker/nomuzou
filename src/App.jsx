@@ -70,6 +70,7 @@ const PRESETS = {
     abv: 5,
     label: "ビール",
   },
+
   sake: {
     sizes: [
       { k: "ochoko", ml: 50, label: "お猪口 (50ml)" },
@@ -78,33 +79,77 @@ const PRESETS = {
     abv: 15,
     label: "日本酒",
   },
-chuhai: {
-  mlMin: 50,
-  mlMax: 1000,
-  mlStep: 50,
-  abvMin: 1,
-  abvMax: 9,
-  label: "酎ハイ",
-},
+
+  wine: {
+    sizes: [120],     // ← 固定
+    abv: 12,          // ← 変更したいなら言って
+    label: "ワイン",
+  },
+
+  shochu: {
+    sizes: [45],      // ← 固定
+    abv: 25,          // ← 固定
+    label: "焼酎",
+  },
+
+  whisky: {
+    sizes: [30, 60, 90],
+    abv: 40,
+    label: "ウイスキー",
+  },
+
+  gin: {
+    sizes: [30, 60, 90],
+    abv: 40,
+    label: "ジン",
+  },
+
+  rum: {
+    sizes: [30, 60, 90],
+    abv: 40,
+    label: "ラム",
+  },
+
+  vodka: {
+    sizes: [30, 60, 90],
+    abv: 40,
+    label: "ウォッカ",
+  },
+
+  tequila: {
+    sizes: [30, 60, 90],
+    abv: 40,
+    label: "テキーラ",
+  },
+
+  chuhai: {
+    mlMin: 50,
+    mlMax: 1000,
+    mlStep: 50,
+    abvMin: 1,
+    abvMax: 9,
+    label: "酎ハイ",
+  },
 
   cocktail: {
-  mlMin: 50,
-  mlMax: 1000,
-  mlStep: 50,
-  abvMin: 1,
-  abvMax: 50,
+    mlMin: 50,
+    mlMax: 1000,
+    mlStep: 50,
+    abvMin: 1,
+    abvMax: 50,
     label: "カクテル",
   },
+
   other: {
     mlMin: 50,
     mlMax: 1000,
     mlStep: 50,
     abvMin: 1,
     abvMax: 60,
-    abvStep: 1,
     label: "その他",
   },
 };
+
 
 
   // footer 高さ監視
