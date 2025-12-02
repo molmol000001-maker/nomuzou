@@ -308,7 +308,8 @@ const stage = useMemo(() => {
     }
   };
 
-const needsWater = true;
+const needsWater = history[0]?.type === "alcohol";
+
 
 
 
