@@ -308,7 +308,8 @@ const stage = useMemo(() => {
     }
   };
 
- const needsWater = lastDrinkGrams > 0 && (Date.now() - lastAlcoholTs) < 3000;
+ const needsWater = history[0]?.type === "alcohol";
+
 
 
 
