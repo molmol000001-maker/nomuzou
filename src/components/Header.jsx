@@ -31,6 +31,11 @@ export default function Header({ isPro, A_now, onOpenHelp, stage, scoreExact}) {
         <div className="text-right w-32">
           <div className="text-[10px] text-slate-500">酔い度</div>
 
+          <div className="text-[11px] font-medium text-slate-700 mt-1">
+  {stage.label}
+</div>
+
+
 <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
   <div
     className={`h-full ${stage.bar}`}
