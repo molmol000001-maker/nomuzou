@@ -54,19 +54,7 @@ const [ageInput, setAgeInput] = useState(String(age));
     note: "",
   });
 
-  // 酔い度ステージ
-const stage = useMemo(() => {
-  const x = A_now;
 
-  if (x < 3) return { label: "シラフ", bar: "bg-emerald-500" };
-  if (x < 10) return { label: "ほろ酔い", bar: "bg-lime-500" };
-  if (x < 20) return { label: "パーティー", bar: "bg-yellow-500" };
-  if (x < 30) return { label: "酔い", bar: "bg-orange-500" };
-  if (x < 40) return { label: "ベロベロ", bar: "bg-red-500" };
-  return { label: "危険", bar: "bg-red-700" };
-}, [A_now]);
-
-  const scoreExact = Math.min(100, A_now * 2);
 
 
   // ヘルプ用
@@ -217,6 +205,22 @@ const PRESETS = {
     return Math.max(0, A_g - burnRate * dt_h);
   }, [nowSec, lastTs, A_g, burnRate]);
 
+// ② scoreExact（バーの長さ％）
+const scoreExact = Math.min(100, A_now * 2);
+
+// ③ stage（色とラベル）
+const stage = useMemo(() => {
+  const x = A_now;
+
+  if (x < 3) return { label: "シラフ", bar: "bg-emerald-500" };
+  if (x < 10) return { label: "ほろ酔い", bar: "bg-lime-500" };
+  if (x < 20) return { label: "パーティー", bar: "bg-yellow-500" };
+  if (x < 30) return { label: "酔い", bar: "bg-orange-500" };
+  if (x < 40) return { label: "ベロベロ", bar: "bg-red-500" };
+  return { label: "危険", bar: "bg-red-700" };
+}, [A_now]);
+
+
   // 次の1杯までの秒数
   const nextOkSec = useMemo(() => {
     const target = 10;
@@ -309,11 +313,13 @@ const PRESETS = {
   // UI
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50">
-      <Header
-        isPro={isPro}
-        A_now={A_now}
-        onOpenHelp={onOpenHelp}
-      />
+<Header
+  isPro={isPro}
+  A_now={A_now}
+  onOpenHelp={onOpenHelp}
+  stage={stage}
+  scoreExact={scoreExact}
+/>
 
       <main
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
