@@ -397,9 +397,15 @@ const needsWater = true;
       </AnimatePresence>
 
       {/* 強制水 */}
-      <AnimatePresence>
-        {needsWater && <WaterGate addWater={addWater} />}
-      </AnimatePresence>
+<AnimatePresence>
+  {needsWater && (
+    <WaterGate
+      needsWater={needsWater}
+      addWater={addWater}
+    />
+  )}
+</AnimatePresence>
+
 
       {/* 水エフェクト */}
       <AnimatePresence>
