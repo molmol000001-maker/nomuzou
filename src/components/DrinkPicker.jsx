@@ -35,9 +35,30 @@ export default function DrinkPicker({
       >
         <div className="font-bold mb-4 text-lg">{preset.label}</div>
 
-        {/* === 量（ml） === */}
-        <div className="mb-4">
-          <div className="text-sm font-medium mb-1">量（ml）</div>
+{/* 固定量（サイズが数値 or オブジェクト） */}
+{isFixedML && (
+  <div className="grid grid-cols-3 gap-2">
+    {preset.sizes.map((item) => {
+      const ml = typeof item === "number" ? item : item.ml;
+      const label = typeof item === "number" ? `${item} ml` : item.label;
+
+      return (
+        <button
+          key={label}
+          onClick={() => setMl(ml)}
+          className={`h-10 rounded-lg border ${
+            picker.ml === ml
+              ? "bg-slate-900 text-white"
+              : "bg-white text-slate-700"
+          }`}
+        >
+          {label}
+        </button>
+      );
+    })}
+  </div>
+)}
+
 
           {/* 固定量の場合 → ボタン表示 */}
           {isFixedML && (
