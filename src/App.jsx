@@ -309,21 +309,24 @@ const openDrinkPicker = (kind) => {
   const preset = PRESETS[kind];
   if (!preset) return;
 
-  const isFixedSize = Array.isArray(preset.sizes);
+  const hasSizes = Array.isArray(preset.sizes);
 
   setPicker({
     open: true,
     kind,
     label: preset.label ?? "",
-    ml: isFixedSize ? null : (preset.mlMin ?? 100),
+    ml: hasSizes ? null : (preset.mlMin ?? 100),
 
-    // showAbv:false の酒でも飲んだ扱いにしない
-    abv: preset.abv ?? preset.abvMin ?? 5,
+    // showAbv:false の酒は強制的に preset.abv を使う
+    abv: preset.showAbv === false
+      ? preset.abv
+      : (preset.abv ?? preset.abvMin ?? 5),
 
     sizeKey: null,
     note: "",
   });
 };
+
 
 
 
