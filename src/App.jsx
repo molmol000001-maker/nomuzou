@@ -49,7 +49,7 @@ const [ageInput, setAgeInput] = useState(String(age));
     kind: null,
     label: "",
     ml: 350,
-    abv: 5,
+    abv: 4,
     sizeKey: null,
     note: "",
   });
@@ -305,19 +305,17 @@ const stage = useMemo(() => {
     ]);
   };
 
-  // DrinkPicker を開く
 const openDrinkPicker = (kind) => {
   const preset = PRESETS[kind];
   if (!preset) return;
 
-  // 固定サイズ（sizes が配列）の場合は ml=null にする
   const isFixedSize = Array.isArray(preset.sizes);
 
   setPicker({
     open: true,
     kind,
     label: preset.label ?? "",
-    ml: isFixedSize ? null : (preset.mlMin ?? 100),
+    ml: isFixedSize ? null : (preset.mlMin ?? 100), // ← 固定サイズは null（=未選択）
     abv:
       preset.showAbv === false
         ? preset.abv
@@ -326,6 +324,7 @@ const openDrinkPicker = (kind) => {
     note: "",
   });
 };
+
 
 
 
