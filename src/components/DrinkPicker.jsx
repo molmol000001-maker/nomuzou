@@ -85,6 +85,9 @@ export default function DrinkPicker({
         </div>
 
         {/* ====================== 度数（%） ====================== */}
+
+if (preset.showAbv === false) return null;
+        
         <div className="mb-4">
           <div className="text-sm font-medium mb-2">度数（%）</div>
 
