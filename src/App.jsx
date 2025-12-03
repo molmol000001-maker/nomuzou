@@ -310,21 +310,23 @@ const openDrinkPicker = (kind) => {
   const preset = PRESETS[kind];
   if (!preset) return;
 
-  const isFixedML = Array.isArray(preset.sizes);
+  // 固定サイズ（sizes が配列）の場合は ml=null にする
+  const isFixedSize = Array.isArray(preset.sizes);
 
   setPicker({
     open: true,
     kind,
     label: preset.label ?? "",
-    ml: Array.isArray(preset.sizes) ? null : (preset.mlMin ?? 100),  // 固定量 → null
+    ml: isFixedSize ? null : (preset.mlMin ?? 100),
     abv:
       preset.showAbv === false
-        ? preset.abv   // 度数非表示の酒は固定値
+        ? preset.abv
         : preset.abv ?? preset.abvMin ?? 5,
     sizeKey: null,
     note: "",
   });
 };
+
 
 
 
