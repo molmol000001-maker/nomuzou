@@ -316,7 +316,7 @@ const openDrinkPicker = (kind) => {
     open: true,
     kind,
     label: preset.label ?? "",
-    ml: Array.isArray(preset.sizes) ? null : (preset.mlMin ?? 100),  // 固定量 → null
+    ml: Array.isArray(preset.sizes) ? null : (preset.mlMin ?? 30),  // 固定量 → null
     abv:
       preset.showAbv === false
         ? preset.abv   // 度数非表示の酒は固定値
