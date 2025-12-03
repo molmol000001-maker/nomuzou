@@ -69,6 +69,7 @@ const PRESETS = {
     sizes: [350, 500],
     abv: 4,
     label: "ビール",
+    showAbv: false,
   },
 
   sake: {
@@ -125,9 +126,7 @@ const PRESETS = {
   },
 
   chuhai: {
-    mlMin: 50,
-    mlMax: 1000,
-    mlStep: 50,
+    sizes: [350, 500],
     abvMin: 1,
     abvMax: 9,
     label: "酎ハイ",
