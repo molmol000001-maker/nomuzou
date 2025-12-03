@@ -305,26 +305,32 @@ const openDrinkPicker = (kind) => {
   const preset = PRESETS[kind];
   if (!preset) return;
 
-  const isFixedML = Array.isArray(preset.sizes);  // ← 追加
+  const isFixedML = Array.isArray(preset.sizes);
 
   setPicker({
     open: true,
     kind,
     label: preset.label ?? "",
-    ml: isFixedML ? null : preset.mlMin ?? 100,   // 固定量は null
-    abv: preset.abv ?? preset.abvMin ?? 5,
+    ml: isFixedML ? null : (preset.mlMin ?? 100),     // 固定量 → null
+    abv:
+      preset.showAbv === false
+        ? preset.abv   // 度数非表示の酒は固定値
+        : preset.abv ?? preset.abvMin ?? 5,
     sizeKey: null,
     note: "",
   });
 };
 
 
+
   const closePicker = () => setPicker((p) => ({ ...p, open: false }));
 
   const confirmPicker = () => {
-    addDrink(`${picker.label} ${picker.ml}ml (${picker.abv}%)`, picker.ml, picker.abv);
-    closePicker();
-  };
+  if (!picker.ml) return;   // ← 追加：サイズ未選択なら追加できない
+  addDrink(`${picker.label} ${picker.ml}ml (${picker.abv}%)`, picker.ml, picker.abv);
+  closePicker();
+};
+
 
   // 飲み会終了（全リセット）
   const endSession = () => {
