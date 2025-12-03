@@ -12,8 +12,11 @@ export default function DrinkPicker({
   const preset = PRESETS[picker.kind];
   if (!preset) return null;
 
-  const isFixedML = Array.isArray(preset.sizes); // 固定量？
-  const isFixedABV = preset.abv && !preset.abvMin && !preset.abvMax; // 固定度数？
+  // 固定量 or 可変量？
+  const isFixedML = Array.isArray(preset.sizes);
+  // 固定度数？
+  const isFixedABV =
+    preset.abv !== undefined && !preset.abvMin && !preset.abvMax;
 
   const setMl = (v) => setPicker((p) => ({ ...p, ml: Number(v) }));
   const setAbv = (v) => setPicker((p) => ({ ...p, abv: Number(v) }));
@@ -35,26 +38,27 @@ export default function DrinkPicker({
       >
         <div className="font-bold mb-4 text-lg">{preset.label}</div>
 
-        {/* ======== 量（ml） ======== */}
+        {/* ====================== 量（ml） ====================== */}
         <div className="mb-4">
-          <div className="text-sm font-medium mb-1">量（ml）</div>
+          <div className="text-sm font-medium mb-2">量（ml）</div>
 
-          {/* 固定量（サイズが数値 or オブジェクト） */}
           {isFixedML && (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {preset.sizes.map((item) => {
                 const ml = typeof item === "number" ? item : item.ml;
                 const label =
-                  typeof item === "number" ? `${item} ml` : item.label;
+                  typeof item === "number"
+                    ? `${item} ml`
+                    : `${item.label}`;
 
                 return (
                   <button
                     key={label}
                     onClick={() => setMl(ml)}
-                    className={`h-10 rounded-lg border ${
+                    className={`h-12 rounded-xl border text-sm flex flex-col justify-center items-center ${
                       picker.ml === ml
-                        ? "bg-slate-900 text-white"
-                        : "bg-white text-slate-700"
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "bg-white text-slate-700 border-slate-300"
                     }`}
                   >
                     {label}
@@ -64,7 +68,6 @@ export default function DrinkPicker({
             </div>
           )}
 
-          {/* 可変量スライダー */}
           {!isFixedML && (
             <>
               <input
@@ -81,16 +84,16 @@ export default function DrinkPicker({
           )}
         </div>
 
-        {/* ======== 度数（%） ======== */}
+        {/* ====================== 度数（%） ====================== */}
         <div className="mb-4">
-          <div className="text-sm font-medium mb-1">度数（%）</div>
+          <div className="text-sm font-medium mb-2">度数（%）</div>
 
-          {/* 固定度数 */}
           {isFixedABV && (
-            <div className="text-right text-sm">{preset.abv}%</div>
+            <div className="text-right text-sm font-medium">
+              {preset.abv}%
+            </div>
           )}
 
-          {/* 可変度数スライダー */}
           {!isFixedABV && (
             <>
               <input
@@ -109,7 +112,7 @@ export default function DrinkPicker({
 
         <button
           onClick={confirmPicker}
-          className="w-full h-10 rounded-xl bg-slate-900 text-white font-semibold mt-2"
+          className="w-full h-12 rounded-xl bg-slate-900 text-white font-semibold mt-2"
         >
           追加する
         </button>
