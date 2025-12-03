@@ -113,12 +113,18 @@ export default function DrinkPicker({
 )}
 
 
-        <button
-          onClick={confirmPicker}
-          className="w-full h-12 rounded-xl bg-slate-900 text-white font-semibold mt-2"
-        >
-          追加する
-        </button>
+<button
+  onClick={confirmPicker}
+  disabled={!picker.ml}
+  className={`w-full h-12 rounded-xl font-semibold mt-2 ${
+    picker.ml
+      ? "bg-slate-900 text-white"
+      : "bg-slate-300 text-slate-500"
+  }`}
+>
+  追加する
+</button>
+
       </motion.div>
     </motion.div>
   );
