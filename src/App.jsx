@@ -99,30 +99,35 @@ const PRESETS = {
     sizes: [30, 60, 90],
     abv: 40,
     label: "ウイスキー",
+    showAbv: false,
   },
 
   gin: {
     sizes: [30, 60, 90],
     abv: 40,
     label: "ジン",
+    showAbv: false,
   },
 
   rum: {
     sizes: [30, 60, 90],
     abv: 40,
     label: "ラム",
+    showAbv: false,
   },
 
   vodka: {
     sizes: [30, 60, 90],
     abv: 40,
     label: "ウォッカ",
+    showAbv: false,
   },
 
   tequila: {
     sizes: [30, 60, 90],
     abv: 40,
     label: "テキーラ",
+    showAbv: false,
   },
 
   chuhai: {
