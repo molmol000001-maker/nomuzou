@@ -274,7 +274,7 @@ const stage = useMemo(() => {
 
   // 次の1杯までの秒数
   const nextOkSec = useMemo(() => {
-    const target = 10;
+    const target = 15;
     const need = A_now - target;
     if (need <= 0) return 0;
 
