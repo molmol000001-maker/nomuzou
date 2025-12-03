@@ -301,20 +301,23 @@ const stage = useMemo(() => {
   };
 
   // DrinkPicker を開く
-  const openDrinkPicker = (kind) => {
-    const preset = PRESETS[kind];
-    if (!preset) return;
+const openDrinkPicker = (kind) => {
+  const preset = PRESETS[kind];
+  if (!preset) return;
+
+  const isFixedML = Array.isArray(preset.sizes);  // ← 追加
 
   setPicker({
     open: true,
     kind,
     label: preset.label ?? "",
-    ml: isFixedML ? null : preset.mlMin ?? 100,   // ← 固定量は null
+    ml: isFixedML ? null : preset.mlMin ?? 100,   // 固定量は null
     abv: preset.abv ?? preset.abvMin ?? 5,
     sizeKey: null,
     note: "",
   });
 };
+
 
   const closePicker = () => setPicker((p) => ({ ...p, open: false }));
 
