@@ -132,13 +132,14 @@ export default function MainPanel({
           ワイン
         </button>
 
-        {/* テキーラ */}
-        <button
-          onClick={() => addDrink("テキーラ 30ml (40%)", 30, 40)}
-          className="h-12 px-4 rounded-xl font-semibold bg-lime-700 text-white"
-        >
-          テキーラ
-        </button>
+{/* テキーラ */}
+<button
+  onClick={() => openDrinkPicker("tequila")}
+  className="h-12 px-4 rounded-xl font-semibold bg-lime-700 text-white"
+>
+  テキーラ
+</button>
+
 
         {/* その他 */}
         <button
