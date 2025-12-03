@@ -450,7 +450,8 @@ const needsWater = history[0]?.type === "alcohol";
       </nav>
 
       {/* 強制水 */}
-{/* DrinkPicker → 最優先で表示 */}
+
+      {/* DrinkPicker */}
 <AnimatePresence>
   {picker.open && (
     <DrinkPicker
@@ -462,6 +463,7 @@ const needsWater = history[0]?.type === "alcohol";
     />
   )}
 </AnimatePresence>
+
 
 {/* 必ず Picker の下に置く */}
 <AnimatePresence>
