@@ -305,19 +305,16 @@ const stage = useMemo(() => {
     const preset = PRESETS[kind];
     if (!preset) return;
 
-    setPicker({
-      open: true,
-      kind,
-      label: preset.label ?? "",
-      ml: Array.isArray(preset.sizes)
-  ? (typeof preset.sizes[0] === "number" ? preset.sizes[0] : preset.sizes[0].ml)
-  : preset.mlMin ?? 100,
-
-      abv: preset.abv ?? 5,
-      sizeKey: null,
-      note: "",
-    });
-  };
+  setPicker({
+    open: true,
+    kind,
+    label: preset.label ?? "",
+    ml: isFixedML ? null : preset.mlMin ?? 100,   // ← 固定量は null
+    abv: preset.abv ?? preset.abvMin ?? 5,
+    sizeKey: null,
+    note: "",
+  });
+};
 
   const closePicker = () => setPicker((p) => ({ ...p, open: false }));
 
