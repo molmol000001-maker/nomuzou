@@ -40,8 +40,8 @@ export default function DrinkPicker({
 <div className="mb-4">
   <div className="text-sm font-medium mb-2">量（ml）</div>
 
-  {/* 固定サイズ（日本酒・テキーラなど） */}
-  {Array.isArray(preset.sizes) && (
+  {/* ① preset.sizes が存在し、かつ配列なら固定サイズ表示 */}
+  {preset.sizes && Array.isArray(preset.sizes) && (
     <div className="grid grid-cols-2 gap-2">
       {preset.sizes.map((item) => {
         const ml = typeof item === "number" ? item : item.ml;
@@ -64,8 +64,8 @@ export default function DrinkPicker({
     </div>
   )}
 
-  {/* スライダー系 */}
-  {!Array.isArray(preset.sizes) && (
+  {/* ② sizes が無い → スライダー */}
+  {!preset.sizes && (
     <>
       <input
         type="range"
@@ -73,9 +73,7 @@ export default function DrinkPicker({
         max={preset.mlMax ?? 1000}
         step={preset.mlStep ?? 1}
         value={picker.ml}
-        onChange={(e) =>
-          setPicker((p) => ({ ...p, ml: Number(e.target.value) }))
-        }
+        onChange={(e) => setMl(e.target.value)}
         className="w-full"
       />
       <div className="text-right text-sm">{picker.ml} ml</div>
