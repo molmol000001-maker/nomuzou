@@ -84,34 +84,34 @@ export default function DrinkPicker({
           )}
         </div>
 
-        {/* ====================== 度数（%） ====================== */}
+       {/* ====================== 度数（%） ====================== */}
+{preset.showAbv !== false && (
+  <div className="mb-4">
+    <div className="text-sm font-medium mb-2">度数（%）</div>
 
-if (preset.showAbv === false) return null;
-        
-        <div className="mb-4">
-          <div className="text-sm font-medium mb-2">度数（%）</div>
+    {isFixedABV && (
+      <div className="text-right text-sm font-medium">
+        {preset.abv}%
+      </div>
+    )}
 
-          {isFixedABV && (
-            <div className="text-right text-sm font-medium">
-              {preset.abv}%
-            </div>
-          )}
+    {!isFixedABV && (
+      <>
+        <input
+          type="range"
+          min={preset.abvMin ?? preset.abv}
+          max={preset.abvMax ?? preset.abv}
+          step={1}
+          value={picker.abv}
+          onChange={(e) => setAbv(e.target.value)}
+          className="w-full"
+        />
+        <div className="text-right text-sm">{picker.abv}%</div>
+      </>
+    )}
+  </div>
+)}
 
-          {!isFixedABV && (
-            <>
-              <input
-                type="range"
-                min={preset.abvMin ?? preset.abv}
-                max={preset.abvMax ?? preset.abv}
-                step={1}
-                value={picker.abv}
-                onChange={(e) => setAbv(e.target.value)}
-                className="w-full"
-              />
-              <div className="text-right text-sm">{picker.abv}%</div>
-            </>
-          )}
-        </div>
 
         <button
           onClick={confirmPicker}
