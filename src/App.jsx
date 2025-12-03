@@ -123,12 +123,12 @@ const PRESETS = {
     showAbv: false,
   },
 
-  tequila: {
-    sizes: [350, 500],
-    abv: 40,
-    label: "テキーラ",
-    showAbv: false,
-  },
+tequila: {
+  sizes: [30, 60, 90],
+  abv: 40,
+  label: "テキーラ",
+  showAbv: false,
+},
 
   chuhai: {
     sizes: [350, 500],
