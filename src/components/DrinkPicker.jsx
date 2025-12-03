@@ -40,26 +40,31 @@ export default function DrinkPicker({
 <div className="mb-4">
   <div className="text-sm font-medium mb-2">量（ml）</div>
 
-  {/* 固定サイズ（例：テキーラ、ウイスキーなど） */}
+  {/* 固定サイズ（日本酒・テキーラなど） */}
   {Array.isArray(preset.sizes) && (
     <div className="grid grid-cols-2 gap-2">
-      {preset.sizes.map((ml) => (
-        <button
-          key={ml}
-          onClick={() => setPicker((p) => ({ ...p, ml }))}
-          className={`h-12 rounded-xl border text-sm flex flex-col justify-center items-center ${
-            picker.ml === ml
-              ? "bg-slate-900 text-white border-slate-900"
-              : "bg-white text-slate-700 border-slate-300"
-          }`}
-        >
-          {ml} ml
-        </button>
-      ))}
+      {preset.sizes.map((item) => {
+        const ml = typeof item === "number" ? item : item.ml;
+        const label = typeof item === "number" ? `${item} ml` : item.label;
+
+        return (
+          <button
+            key={label}
+            onClick={() => setPicker((p) => ({ ...p, ml }))}
+            className={`h-12 rounded-xl border text-sm flex flex-col justify-center items-center ${
+              picker.ml === ml
+                ? "bg-slate-900 text-white border-slate-900"
+                : "bg-white text-slate-700 border-slate-300"
+            }`}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   )}
 
-  {/* スライダー系（chuhai / cocktail / other） */}
+  {/* スライダー系 */}
   {!Array.isArray(preset.sizes) && (
     <>
       <input
@@ -77,6 +82,7 @@ export default function DrinkPicker({
     </>
   )}
 </div>
+
 
 
        {/* ====================== 度数（%） ====================== */}
