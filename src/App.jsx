@@ -67,7 +67,7 @@ const [ageInput, setAgeInput] = useState(String(age));
 const PRESETS = {
   beer: {
     sizes: [350, 500],
-    abv: 5,
+    abv: 4,
     label: "ビール",
   },
 
@@ -78,12 +78,14 @@ const PRESETS = {
     ],
     abv: 15,
     label: "日本酒",
+    showAbv: false,
   },
 
   wine: {
     sizes: [120],     // ← 固定
     abv: 12,          // ← 変更したいなら言って
     label: "ワイン",
+    showAbv: false,
   },
 
   shochu: {
