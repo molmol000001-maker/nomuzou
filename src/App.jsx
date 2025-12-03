@@ -315,17 +315,15 @@ const openDrinkPicker = (kind) => {
     open: true,
     kind,
     label: preset.label ?? "",
-    ml: isFixedSize ? null : (preset.mlMin ?? 100), // ← 固定サイズは null（=未選択）
-    abv:
-      preset.showAbv === false
-        ? preset.abv
-        : preset.abv ?? preset.abvMin ?? 5,
+    ml: isFixedSize ? null : (preset.mlMin ?? 100),
+
+    // showAbv:false の酒でも飲んだ扱いにしない
+    abv: preset.abv ?? preset.abvMin ?? 5,
+
     sizeKey: null,
     note: "",
   });
 };
-
-
 
 
 
@@ -465,14 +463,13 @@ const needsWater = history[0]?.type === "alcohol";
       </AnimatePresence>
 
       {/* 強制水 */}
-<AnimatePresence>
-  {needsWater && !picker.open && (
-    <WaterGate
-      needsWater={needsWater}
-      addWater={addWater}
-    />
-  )}
-</AnimatePresence>
+{needsWater && picker.open === false && (
+  <WaterGate
+    needsWater={needsWater}
+    addWater={addWater}
+  />
+)}
+
 
 
 
