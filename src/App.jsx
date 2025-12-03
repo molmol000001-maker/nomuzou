@@ -124,7 +124,7 @@ const PRESETS = {
   },
 
   tequila: {
-    sizes: [30, 60, 90],
+    sizes: [350, 500],
     abv: 40,
     label: "テキーラ",
     showAbv: false,
