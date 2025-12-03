@@ -116,19 +116,19 @@ const PRESETS = {
     showAbv: false,
   },
 
-  vodka: {
-    sizes: [30, 60, 90],
-    abv: 40,
-    label: "ウォッカ",
-    showAbv: false,
-  },
-
+vodka: {
+  sizes: [30, 60, 90],
+  abv: 40,
+  label: "ウォッカ",
+  showAbv: false,
+},
 tequila: {
   sizes: [30, 60, 90],
   abv: 40,
   label: "テキーラ",
   showAbv: false,
 },
+
 
   chuhai: {
     sizes: [350, 500],
@@ -449,26 +449,27 @@ const needsWater = history[0]?.type === "alcohol";
         </div>
       </nav>
 
-      {/* DrinkPicker */}
-      <AnimatePresence>
-        {picker.open && (
-          <DrinkPicker
-            picker={picker}
-            setPicker={setPicker}
-            PRESETS={PRESETS}
-            closePicker={closePicker}
-            confirmPicker={confirmPicker}
-          />
-        )}
-      </AnimatePresence>
-
       {/* 強制水 */}
-{needsWater && picker.open === false && (
-  <WaterGate
-    needsWater={needsWater}
-    addWater={addWater}
-  />
-)}
+{/* DrinkPicker → 最優先で表示 */}
+<AnimatePresence>
+  {picker.open && (
+    <DrinkPicker
+      picker={picker}
+      setPicker={setPicker}
+      PRESETS={PRESETS}
+      closePicker={closePicker}
+      confirmPicker={confirmPicker}
+    />
+  )}
+</AnimatePresence>
+
+{/* 必ず Picker の下に置く */}
+<AnimatePresence>
+  {!picker.open && needsWater && (
+    <WaterGate needsWater={needsWater} addWater={addWater} />
+  )}
+</AnimatePresence>
+
 
 
 
