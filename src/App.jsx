@@ -467,13 +467,14 @@ const needsWater = history[0]?.type === "alcohol";
 
       {/* 強制水 */}
 <AnimatePresence>
-  {needsWater && (
+  {needsWater && !picker.open && (
     <WaterGate
       needsWater={needsWater}
       addWater={addWater}
     />
   )}
 </AnimatePresence>
+
 
 
       {/* 水エフェクト */}
