@@ -12,8 +12,6 @@ export default function DrinkPicker({
   const preset = PRESETS[picker.kind];
   if (!preset) return null;
 
-  // 固定量 or 可変量？
-  const isFixedML = Array.isArray(preset.sizes);
   // 固定度数？
   const isFixedABV =
     preset.abv !== undefined && !preset.abvMin && !preset.abvMax;
@@ -38,51 +36,48 @@ export default function DrinkPicker({
       >
         <div className="font-bold mb-4 text-lg">{preset.label}</div>
 
-        {/* ====================== 量（ml） ====================== */}
-        <div className="mb-4">
-          <div className="text-sm font-medium mb-2">量（ml）</div>
+{/* ====================== 量（ml） ====================== */}
+<div className="mb-4">
+  <div className="text-sm font-medium mb-2">量（ml）</div>
 
-          {isFixedML && (
-            <div className="grid grid-cols-2 gap-2">
-              {preset.sizes.map((item) => {
-                const ml = typeof item === "number" ? item : item.ml;
-                const label =
-                  typeof item === "number"
-                    ? `${item} ml`
-                    : `${item.label}`;
+  {/* 固定サイズ（例：テキーラ、ウイスキーなど） */}
+  {Array.isArray(preset.sizes) && (
+    <div className="grid grid-cols-2 gap-2">
+      {preset.sizes.map((ml) => (
+        <button
+          key={ml}
+          onClick={() => setPicker((p) => ({ ...p, ml }))}
+          className={`h-12 rounded-xl border text-sm flex flex-col justify-center items-center ${
+            picker.ml === ml
+              ? "bg-slate-900 text-white border-slate-900"
+              : "bg-white text-slate-700 border-slate-300"
+          }`}
+        >
+          {ml} ml
+        </button>
+      ))}
+    </div>
+  )}
 
-                return (
-                  <button
-                    key={label}
-                    onClick={() => setMl(ml)}
-                    className={`h-12 rounded-xl border text-sm flex flex-col justify-center items-center ${
-                      picker.ml === ml
-                        ? "bg-slate-900 text-white border-slate-900"
-                        : "bg-white text-slate-700 border-slate-300"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+  {/* スライダー系（chuhai / cocktail / other） */}
+  {!Array.isArray(preset.sizes) && (
+    <>
+      <input
+        type="range"
+        min={preset.mlMin ?? 1}
+        max={preset.mlMax ?? 1000}
+        step={preset.mlStep ?? 1}
+        value={picker.ml}
+        onChange={(e) =>
+          setPicker((p) => ({ ...p, ml: Number(e.target.value) }))
+        }
+        className="w-full"
+      />
+      <div className="text-right text-sm">{picker.ml} ml</div>
+    </>
+  )}
+</div>
 
-          {!isFixedML && (
-            <>
-              <input
-                type="range"
-                min={preset.mlMin ?? 1}
-                max={preset.mlMax ?? 1000}
-                step={preset.mlStep ?? 1}
-                value={picker.ml}
-                onChange={(e) => setMl(e.target.value)}
-                className="w-full"
-              />
-              <div className="text-right text-sm">{picker.ml} ml</div>
-            </>
-          )}
-        </div>
 
        {/* ====================== 度数（%） ====================== */}
 {preset.showAbv !== false && (
