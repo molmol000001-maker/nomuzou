@@ -64,22 +64,22 @@ export default function DrinkPicker({
     </div>
   )}
 
-  {/* ② sizes が無い → スライダー */}
-  {!preset.sizes && (
-    <>
-      <input
-        type="range"
-        min={preset.mlMin ?? 1}
-        max={preset.mlMax ?? 1000}
-        step={preset.mlStep ?? 1}
-        value={picker.ml}
-        onChange={(e) => setMl(e.target.value)}
-        className="w-full"
-      />
-      <div className="text-right text-sm">{picker.ml} ml</div>
-    </>
-  )}
-</div>
+{/* ② sizes が無い → スライダー */}
+{!Array.isArray(preset.sizes) && (
+  <>
+    <input
+      type="range"
+      min={preset.mlMin ?? 1}
+      max={preset.mlMax ?? 1000}
+      step={preset.mlStep ?? 1}
+      value={picker.ml}
+      onChange={(e) => setMl(e.target.value)}
+      className="w-full"
+    />
+    <div className="text-right text-sm">{picker.ml} ml</div>
+  </>
+)}
+
 
 
 
