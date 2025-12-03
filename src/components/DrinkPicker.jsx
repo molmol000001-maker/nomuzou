@@ -40,29 +40,30 @@ export default function DrinkPicker({
 <div className="mb-4">
   <div className="text-sm font-medium mb-2">量（ml）</div>
 
-  {/* ① preset.sizes が存在し、かつ配列なら固定サイズ表示 */}
-  {preset.sizes && Array.isArray(preset.sizes) && (
-    <div className="grid grid-cols-2 gap-2">
-      {preset.sizes.map((item) => {
-        const ml = typeof item === "number" ? item : item.ml;
-        const label = typeof item === "number" ? `${item} ml` : item.label;
+{/* 固定サイズ（日本酒・テキーラなど） */}
+{Array.isArray(preset.sizes) && (
+  <div className="grid grid-cols-2 gap-2">
+    {preset.sizes.map((item) => {
+      const ml = typeof item === "number" ? item : item.ml;
+      const label = typeof item === "number" ? `${item} ml` : item.label;
 
-        return (
-          <button
-            key={label}
-            onClick={() => setPicker((p) => ({ ...p, ml }))}
-            className={`h-12 rounded-xl border text-sm flex flex-col justify-center items-center ${
-              picker.ml === ml
-                ? "bg-slate-900 text-white border-slate-900"
-                : "bg-white text-slate-700 border-slate-300"
-            }`}
-          >
-            {label}
-          </button>
-        );
-      })}
-    </div>
-  )}
+      return (
+        <button
+          key={label}
+          onClick={() => setPicker((p) => ({ ...p, ml }))}
+          className={`h-12 rounded-xl border text-sm flex flex-col justify-center items-center ${
+            picker.ml === ml
+              ? "bg-slate-900 text-white border-slate-900"
+              : "bg-white text-slate-700 border-slate-300"
+          }`}
+        >
+          {label}
+        </button>
+      );
+    })}
+  </div>
+)}
+
 
 {/* ② sizes が無い → スライダー */}
 {!Array.isArray(preset.sizes) && (
