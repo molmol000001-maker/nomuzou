@@ -7,10 +7,10 @@ import MainPanel from "./components/MainPanel";
 import HistoryPanel from "./components/HistoryPanel";
 import SettingsPanel from "./components/SettingsPanel";F
 
-import { PRESETS } from "./utils/constants";F
+import { PRESETS } from "./utils/constants.jsx";F
 import WaterGate from "./components/WaterGate";
 import WaterFX from "./components/WaterFX";
-import DrinkPicker from "./components/DrinkPicker";
+import DrinkPicker from "./components/DrinkPicker.jsx";
 import GoodNightOverlay from "./components/GoodNightOverlay";
 
 import { motion, AnimatePresence } from "framer-motion";
