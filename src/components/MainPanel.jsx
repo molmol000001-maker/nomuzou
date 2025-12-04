@@ -100,29 +100,30 @@ export default function MainPanel({
           カクテル
         </button>
 
-        {/* ジン */}
-        <button
-          onClick={() => addDrink("ジン 30ml (40%)", 30, 40)}
-          className="h-12 px-4 rounded-xl font-semibold bg-indigo-600 text-white"
-        >
-          ジン
-        </button>
+       {/* ジン */}
+<button
+  onClick={() => openDrinkPicker("gin")}
+  className="h-12 px-4 rounded-xl font-semibold bg-indigo-600 text-white"
+>
+  ジン
+</button>
 
-        {/* ウォッカ */}
-        <button
-          onClick={() => addDrink("ウォッカ 30ml (40%)", 30, 40)}
-          className="h-12 px-4 rounded-xl font-semibold bg-blue-700 text-white"
-        >
-          ウォッカ
-        </button>
+{/* ウォッカ */}
+<button
+  onClick={() => openDrinkPicker("vodka")}
+  className="h-12 px-4 rounded-xl font-semibold bg-blue-700 text-white"
+>
+  ウォッカ
+</button>
 
-        {/* ラム */}
-        <button
-          onClick={() => addDrink("ラム 30ml (40%)", 30, 40)}
-          className="h-12 px-4 rounded-xl font-semibold bg-amber-700 text-white"
-        >
-          ラム
-        </button>
+{/* ラム */}
+<button
+  onClick={() => openDrinkPicker("rum")}
+  className="h-12 px-4 rounded-xl font-semibold bg-amber-700 text-white"
+>
+  ラム
+</button>
+
 
         {/* ワイン */}
         <button
