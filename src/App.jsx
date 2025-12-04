@@ -385,7 +385,9 @@ const openDrinkPicker = (kind) => {
     }
   };
 
-const needsWater = history[0]?.type === "alcohol";
+const needsWater =
+  !picker.open && history[0]?.type === "alcohol";
+
 
 
 
