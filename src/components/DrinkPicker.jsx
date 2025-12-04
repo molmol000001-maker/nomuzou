@@ -1,11 +1,12 @@
 // src/components/DrinkPicker.jsx
 import React from "react";
 import { motion } from "framer-motion";
+import { PRESETS } from "../utils/constants";
+
 
 export default function DrinkPicker({
   picker,
   setPicker,
-  PRESETS,
   closePicker,
   confirmPicker,
 }) {
