@@ -394,12 +394,6 @@ const needsWater = history[0]?.type === "alcohol";
   scoreExact={scoreExact}
 />
 
-      <div className="text-xs text-red-600">
-  picker.open = {String(picker.open)}<br />
-  needsWater = {String(needsWater)}<br />
-  history[0]?.type = {history[0]?.type}
-</div>
-
 
       <main
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
@@ -476,11 +470,11 @@ const needsWater = history[0]?.type === "alcohol";
 
 
 {/* 必ず Picker の下に置く */}
-{/* <AnimatePresence>
+ <AnimatePresence>
   {!picker.open && needsWater && (
-    <WaterGate needsWater={needsWater} addWater={addWater} />
+  //  <WaterGate needsWater={needsWater} addWater={addWater} /> //
   )}
-</AnimatePresence> */}
+</AnimatePresence> 
 
 
 
@@ -489,7 +483,9 @@ const needsWater = history[0]?.type === "alcohol";
       {/* 水エフェクト */}
       <AnimatePresence>
         {waterFX && <WaterFX />}
-      </AnimatePresence>
+      </AnimatePresence> 
+
+    
 
       {/* おやすみオーバーレイ */}
       <AnimatePresence>
