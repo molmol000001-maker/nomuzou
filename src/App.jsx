@@ -414,6 +414,7 @@ const needsWater =
     <DrinkPicker
       picker={picker}
       setPicker={setPicker}
+      PRESETS={PRESETS}
       closePicker={closePicker}
       confirmPicker={confirmPicker}
     />
