@@ -310,13 +310,25 @@ const stage = useMemo(() => {
 
 const openDrinkPicker = (kind) => {
 
+    console.log("=== openDrinkPicker CALLED ===");
+  console.log("kind:", kind);
+
+  console.log("PRESETS keys:", Object.keys(PRESETS));
+  console.log("PRESETS[kind]:", PRESETS[kind]);
+
   setPickerJustOpened(true);
 setTimeout(() => setPickerJustOpened(false), 0);
 
+    console.log("before modifying history, history[0]:", history[0]);
+
+
   // WaterGate を強制的に止める
   setHistory((h) => {
+     console.log("inside setHistory, h[0] before:", h[0]);
     if (h[0]?.type === "alcohol") {
       return [{ id: "temp", ts: Date.now(), type: "temp" }, ...h];
+      console.log("inside setHistory, h[0] after:", newH[0]);
+      return newH;
     }
     return h;
   });
@@ -326,6 +338,9 @@ setTimeout(() => setPickerJustOpened(false), 0);
 
   const hasSizes = Array.isArray(preset.sizes);
 
+  console.log("Setting picker.open = true");
+
+  
   setPicker({
     open: true,
     kind,
@@ -340,6 +355,7 @@ setTimeout(() => setPickerJustOpened(false), 0);
     sizeKey: null,
     note: "",
   });
+  console.log("picker should now be open");
 };
 
 
