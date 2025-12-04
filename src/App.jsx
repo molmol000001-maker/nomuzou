@@ -394,6 +394,13 @@ const needsWater = history[0]?.type === "alcohol";
   scoreExact={scoreExact}
 />
 
+      <div className="text-xs text-red-600">
+  picker.open = {String(picker.open)}<br />
+  needsWater = {String(needsWater)}<br />
+  history[0]?.type = {history[0]?.type}
+</div>
+
+
       <main
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
         style={{ paddingBottom: footerHeight + 16 }}
