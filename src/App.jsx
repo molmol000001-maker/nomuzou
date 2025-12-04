@@ -469,11 +469,11 @@ const needsWater = history[0]?.type === "alcohol";
 
 
 {/* 必ず Picker の下に置く */}
-<AnimatePresence>
+{/* <AnimatePresence>
   {!picker.open && needsWater && (
     <WaterGate needsWater={needsWater} addWater={addWater} />
   )}
-</AnimatePresence>
+</AnimatePresence> */}
 
 
 
