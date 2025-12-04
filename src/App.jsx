@@ -306,6 +306,14 @@ const stage = useMemo(() => {
   };
 
 const openDrinkPicker = (kind) => {
+  // WaterGate を強制的に止める
+  setHistory((h) => {
+    if (h[0]?.type === "alcohol") {
+      return [{ id: "temp", ts: Date.now(), type: "temp" }, ...h];
+    }
+    return h;
+  });
+
   const preset = PRESETS[kind];
   if (!preset) return;
 
@@ -317,15 +325,16 @@ const openDrinkPicker = (kind) => {
     label: preset.label ?? "",
     ml: hasSizes ? null : (preset.mlMin ?? 100),
 
-    // showAbv:false の酒は強制的に preset.abv を使う
-    abv: preset.showAbv === false
-      ? preset.abv
-      : (preset.abv ?? preset.abvMin ?? 5),
+    abv:
+      preset.showAbv === false
+        ? preset.abv
+        : (preset.abv ?? preset.abvMin ?? 5),
 
     sizeKey: null,
     note: "",
   });
 };
+
 
 
 
