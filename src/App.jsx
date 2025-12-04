@@ -323,15 +323,17 @@ setTimeout(() => setPickerJustOpened(false), 0);
 
 
   // WaterGate を強制的に止める
-  setHistory((h) => {
-     console.log("inside setHistory, h[0] before:", h[0]);
-    if (h[0]?.type === "alcohol") {
-      return [{ id: "temp", ts: Date.now(), type: "temp" }, ...h];
-      console.log("inside setHistory, h[0] after:", newH[0]);
-      return newH;
-    }
-    return h;
-  });
+setHistory((h) => {
+  console.log("inside setHistory, h[0] before:", h[0]);
+
+  if (h[0]?.type === "alcohol") {
+    const newH = [{ id: "temp", ts: Date.now(), type: "temp" }, ...h];
+    console.log("inside setHistory, h[0] after:", newH[0]);
+    return newH;
+  }
+  return h;
+});
+
 
   const preset = PRESETS[kind];
   if (!preset) return;
