@@ -7,7 +7,7 @@ import MainPanel from "./components/MainPanel";
 import HistoryPanel from "./components/HistoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
 
-import { PRESETS } from "./utils/constants.jsx";
+import { PRESETS } from "./utils/constants";
 import WaterGate from "./components/WaterGate";
 import WaterFX from "./components/WaterFX";
 import DrinkPicker from "./components/DrinkPicker.jsx";
