@@ -54,6 +54,9 @@ const [ageInput, setAgeInput] = useState(String(age));
     note: "",
   });
 
+  const [pickerJustOpened, setPickerJustOpened] = useState(false);
+
+
 
 
 
@@ -306,6 +309,10 @@ const stage = useMemo(() => {
   };
 
 const openDrinkPicker = (kind) => {
+
+  setPickerJustOpened(true);
+setTimeout(() => setPickerJustOpened(false), 0);
+
   // WaterGate を強制的に止める
   setHistory((h) => {
     if (h[0]?.type === "alcohol") {
@@ -386,7 +393,10 @@ const openDrinkPicker = (kind) => {
   };
 
 const needsWater =
-  !picker.open && history[0]?.type === "alcohol";
+  !picker.open &&
+  !pickerJustOpened &&
+  history[0]?.type === "alcohol";
+
 
 
 
