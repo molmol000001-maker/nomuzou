@@ -394,6 +394,13 @@ const needsWater = history[0]?.type === "alcohol";
   scoreExact={scoreExact}
 />
 
+      {console.log("DEBUG",
+  "picker.open=", picker.open,
+  "needsWater=", needsWater,
+  "history[0]?.type=", history[0]?.type
+)}
+
+
 
       <main
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
@@ -470,11 +477,12 @@ const needsWater = history[0]?.type === "alcohol";
 
 
 {/* 必ず Picker の下に置く */}
- <AnimatePresence>
-  {!picker.open && needsWater && (
-  //  <WaterGate needsWater={needsWater} addWater={addWater} /> //
+<AnimatePresence>
+  {(!picker.open && needsWater && history.length > 0) && (
+    <WaterGate needsWater={needsWater} addWater={addWater} />
   )}
-</AnimatePresence> 
+</AnimatePresence>
+
 
 
 
