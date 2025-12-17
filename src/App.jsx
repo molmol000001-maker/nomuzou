@@ -8,6 +8,8 @@ import HistoryPanel from "./components/HistoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
 
 import { PRESETS } from "./utils/constants";
+import useAlcoholState from "./hooks/useAlcoholState";
+import useTimer from "./hooks/useTimer";
 import WaterGate from "./components/WaterGate";
 import WaterFX from "./components/WaterFX";
 import DrinkPicker from "./components/DrinkPicker";
