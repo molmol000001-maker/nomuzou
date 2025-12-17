@@ -1,6 +1,5 @@
 // src/App.jsx
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { saveState, loadState } from "./utils/storage";
+import React, { useEffect, useRef, useState } from "react";
 
 import Header from "./components/Header";
 import MainPanel from "./components/MainPanel";
@@ -8,8 +7,6 @@ import HistoryPanel from "./components/HistoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
 
 import { PRESETS } from "./utils/constants";
-import useAlcoholState from "./hooks/useAlcoholState";
-import useTimer from "./hooks/useTimer";
 import WaterGate from "./components/WaterGate";
 import WaterFX from "./components/WaterFX";
 import DrinkPicker from "./components/DrinkPicker";
@@ -17,36 +14,41 @@ import GoodNightOverlay from "./components/GoodNightOverlay";
 
 import { motion, AnimatePresence } from "framer-motion";
 
-// ローカルストレージのキー（以前のコードで使っていたものに合わせる）
-const STORAGE_KEY = "nomel_v1";
+import useAlcoholState from "./hooks/useAlcoholState";
+import { useTimer } from "./hooks/useTimer";
 
 export default function App() {
   const [tab, setTab] = useState("main");
   const [isPro, setIsPro] = useState(false);
 
+  // footer高さ
   const footerRef = useRef(null);
   const [footerHeight, setFooterHeight] = useState(0);
 
-  const [nowSec, setNowSec] = useState(Date.now());
+  // now (Date.now ms)
+  const nowMs = useTimer();
 
-  const [history, setHistory] = useState([]);
-  const [A_g, setAg] = useState(0);
-  const [lastTs, setLastTs] = useState(Date.now());
-  const [lastAlcoholTs, setLastAlcoholTs] = useState(0);
-  const [lastDrinkGrams, setLastDrinkGrams] = useState(0);
+  // alcohol engine
+  const alcohol = useAlcoholState(nowMs);
 
-  const [weightKg, setWeightKg] = useState(75);
-  const [age, setAge] = useState(35);
-  const [sex, setSex] = useState("male");
-  const [weightInput, setWeightInput] = useState(String(weightKg));
-const [ageInput, setAgeInput] = useState(String(age));
+  // Settingsの入力欄（文字列として保持）
+  const [weightInput, setWeightInput] = useState("75");
+  const [ageInput, setAgeInput] = useState("35");
 
+  // alcohol側の値がロードされたら入力欄へ反映
+  useEffect(() => {
+    if (typeof alcohol.weightKg === "number") setWeightInput(String(alcohol.weightKg));
+  }, [alcohol.weightKg]);
 
-  const [waterBonusSec, setWaterBonusSec] = useState(0);
+  useEffect(() => {
+    if (typeof alcohol.age === "number") setAgeInput(String(alcohol.age));
+  }, [alcohol.age]);
 
+  // 演出系
   const [waterFX, setWaterFX] = useState(false);
   const [goodNightOpen, setGoodNightOpen] = useState(false);
 
+  // picker
   const [picker, setPicker] = useState({
     open: false,
     kind: null,
@@ -59,16 +61,9 @@ const [ageInput, setAgeInput] = useState(String(age));
 
   const [pickerJustOpened, setPickerJustOpened] = useState(false);
 
-
-
-
-
-  // ヘルプ用
+  // ヘルプ
   const [helpOpen, setHelpOpen] = useState(false);
   const onOpenHelp = () => setHelpOpen(true);
-
-  const [booted, setBooted] = useState(false);
-
 
   // footer 高さ監視
   useEffect(() => {
@@ -90,265 +85,84 @@ const [ageInput, setAgeInput] = useState(String(age));
     };
   }, []);
 
-  // 状態復元
-  useEffect(() => {
-    const saved = loadState();
-    if (!saved) {
-      setBooted(true);
-      return;
-    }
-
-    if (saved.weightKg) setWeightKg(saved.weightKg);
-    if (saved.age) setAge(saved.age);
-    if (saved.sex) setSex(saved.sex);
-
-    const now = Date.now();
-    const last = Number(saved.lastTs ?? now);
-    const dt_h = Math.max(0, (now - last) / 3600000);
-
-    let burn = (saved.sex ?? sex) === "male" ? 7.2 : 6.8;
-    const ag = saved.age ?? age;
-    if (ag < 30) burn += 0.2;
-    if (ag >= 60) burn -= 0.2;
-
-    const Ag = Math.max(0, Number(saved.A_g ?? 0) - burn * dt_h);
-
-    setAg(Ag);
-    setLastTs(now);
-    setHistory(Array.isArray(saved.history) ? saved.history : []);
-    setWaterBonusSec(Number(saved.waterBonusSec ?? 0));
-    setLastAlcoholTs(Number(saved.lastAlcoholTs ?? 0));
-    setLastDrinkGrams(Number(saved.lastDrinkGrams ?? 0));
-
-    setBooted(true);
-  }, []);
-
-  // 状態保存
-  useEffect(() => {
-    if (!booted) return;
-    const id = setTimeout(() => {
-      saveState({
-        A_g,
-        lastTs,
-        history,
-        waterBonusSec,
-        lastAlcoholTs,
-        lastDrinkGrams,
-        weightKg,
-        age,
-        sex,
-      });
-    }, 200);
-
-    return () => clearTimeout(id);
-  }, [
-    booted,
-    A_g,
-    lastTs,
-    history,
-    waterBonusSec,
-    lastAlcoholTs,
-    lastDrinkGrams,
-    weightKg,
-    age,
-    sex,
-  ]);
-
-  // タイマー
-  useEffect(() => {
-    const id = setInterval(() => setNowSec(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // アルコール減少
-  const burnRate = useMemo(() => {
-    let v = sex === "male" ? 7.2 : 6.8;
-    if (age < 30) v += 0.2;
-    if (age >= 60) v -= 0.2;
-    return Math.max(3, Math.min(12, v));
-  }, [sex, age]);
-
-  const A_now = useMemo(() => {
-    const dt_h = Math.max(0, (nowSec - lastTs) / 3600000);
-    return Math.max(0, A_g - burnRate * dt_h);
-  }, [nowSec, lastTs, A_g, burnRate]);
-
-// ② scoreExact（バーの長さ％）
-const scoreExact = Math.min(100, A_now * 2);
-
-// ③ stage（色とラベル）
-const stage = useMemo(() => {
-  const x = A_now;
-
-  if (x < 3) return { label: "シラフ", bar: "bg-emerald-500" };
-  if (x < 10) return { label: "ほろ酔い", bar: "bg-lime-500" };
-  if (x < 20) return { label: "パーティー", bar: "bg-yellow-500" };
-  if (x < 30) return { label: "酔い", bar: "bg-orange-500" };
-  if (x < 40) return { label: "ベロベロ", bar: "bg-red-500" };
-  return { label: "危険", bar: "bg-red-700" };
-}, [A_now]);
-
-
-
-  // 次の1杯までの秒数
-  const nextOkSec = useMemo(() => {
-    const target = 15;
-    const need = A_now - target;
-    if (need <= 0) return 0;
-
-    const sec = (need / burnRate) * 3600 - waterBonusSec;
-    return Math.max(0, Math.floor(sec));
-  }, [A_now, burnRate, waterBonusSec]);
-
-  // ドリンク追加
-  const addDrink = (label, ml, abv) => {
-    const grams = ml * (abv / 100) * 0.8;
-    const now = Date.now();
-
-    setAg((v) => v + grams);
-    setLastTs(now);
-    setLastAlcoholTs(now);
-    setLastDrinkGrams(grams);
-    setWaterBonusSec(0);
-
-    setHistory((h) => [
-      { id: Math.random().toString(36), ts: now, type: "alcohol", label, ml, abv },
-      ...h,
-    ]);
-  };
-
-const openDrinkPicker = (kind) => {
-
-    console.log("=== openDrinkPicker CALLED ===");
-  console.log("kind:", kind);
-
-  console.log("PRESETS keys:", Object.keys(PRESETS));
-  console.log("PRESETS[kind]:", PRESETS[kind]);
-
-  setPickerJustOpened(true);
-setTimeout(() => setPickerJustOpened(false), 0);
-
-    console.log("before modifying history, history[0]:", history[0]);
-
-
-  // WaterGate を強制的に止める
-setHistory((h) => {
-  console.log("inside setHistory, h[0] before:", h[0]);
-
-  if (h[0]?.type === "alcohol") {
-    const newH = [{ id: "temp", ts: Date.now(), type: "temp" }, ...h];
-    console.log("inside setHistory, h[0] after:", newH[0]);
-    return newH;
-  }
-  return h;
-});
-
-
-  const preset = PRESETS[kind];
-  if (!preset) return;
-
-  const hasSizes = Array.isArray(preset.sizes);
-
-  console.log("Setting picker.open = true");
-
-  
-  setPicker({
-    open: true,
-    kind,
-    label: preset.label ?? "",
-    ml: hasSizes ? null : (preset.mlMin ?? 100),
-
-    abv:
-      preset.showAbv === false
-        ? preset.abv
-        : (preset.abv ?? preset.abvMin ?? 5),
-
-    sizeKey: null,
-    note: "",
-  });
-  console.log("picker should now be open");
-};
-
-
-
-
-
+  // ドリンク追加（実処理は hook）
   const closePicker = () => setPicker((p) => ({ ...p, open: false }));
 
   const confirmPicker = () => {
-  if (!picker.ml) return;   // ← 追加：サイズ未選択なら追加できない
-  addDrink(`${picker.label} ${picker.ml}ml (${picker.abv}%)`, picker.ml, picker.abv);
-  closePicker();
-};
-
-
-  // 飲み会終了（全リセット）
-  const endSession = () => {
-    const now = Date.now();
-    setAg(0);
-    setLastTs(now);
-    setHistory([]);
-    setWaterBonusSec(0);
-    setLastAlcoholTs(0);
-    setLastDrinkGrams(0);
-
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      // 取れなくてもアプリは動くので無視
-    }
-
-    setGoodNightOpen(true);
+    if (!picker.ml) return; // サイズ未選択対策
+    alcohol.addDrink(
+      `${picker.label} ${picker.ml}ml (${picker.abv}%)`,
+      picker.ml,
+      picker.abv
+    );
+    closePicker();
   };
 
-  // 水
+  // WaterGate対策の openDrinkPicker（あなたの現行ロジックを温存）
+  const openDrinkPicker = (kind) => {
+    setPickerJustOpened(true);
+    setTimeout(() => setPickerJustOpened(false), 0);
+
+    // WaterGate を強制的に止める（history先頭がalcoholなら temp を挿入）
+    alcohol.setHistory((h) => {
+      if (h[0]?.type === "alcohol") {
+        return [{ id: "temp", ts: Date.now(), type: "temp" }, ...h];
+      }
+      return h;
+    });
+
+    const preset = PRESETS[kind];
+    if (!preset) return;
+
+    const hasSizes = Array.isArray(preset.sizes);
+
+    setPicker({
+      open: true,
+      kind,
+      label: preset.label ?? "",
+      ml: hasSizes ? null : (preset.mlMin ?? 100),
+      abv:
+        preset.showAbv === false
+          ? preset.abv
+          : (preset.abv ?? preset.abvMin ?? 5),
+      sizeKey: null,
+      note: "",
+    });
+  };
+
+  // 水（mandatory判定はApp側、加算はhook側）
   const addWater = () => {
-    const now = Date.now();
-    const mandatory = history[0]?.type === "alcohol";
+    const mandatory = alcohol.history[0]?.type === "alcohol";
 
-    setHistory((h) => [
-      { id: Math.random().toString(36), ts: now, type: "water", label: "ソフトドリンク/水" },
-      ...h,
-    ]);
+    alcohol.addWater(!!mandatory);
 
-    if (!mandatory) {
-      setWaterBonusSec((s) => s + 600);
-    } else {
+    if (mandatory) {
       setWaterFX(true);
       setTimeout(() => setWaterFX(false), 1200);
     }
   };
 
-const needsWater =
-  !picker.open &&
-  !pickerJustOpened &&
-  history[0]?.type === "alcohol";
+  // 飲み会終了
+  const endSession = () => {
+    alcohol.endSession();
+    setGoodNightOpen(true);
+  };
 
-
-
-
-
-
-
+  const needsWater =
+    !picker.open &&
+    !pickerJustOpened &&
+    alcohol.history[0]?.type === "alcohol";
 
   // UI
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50">
-<Header
-  isPro={isPro}
-  A_now={A_now}
-  onOpenHelp={onOpenHelp}
-  stage={stage}
-  scoreExact={scoreExact}
-/>
-
-      {console.log("DEBUG",
-  "picker.open=", picker.open,
-  "needsWater=", needsWater,
-  "history[0]?.type=", history[0]?.type
-)}
-
-
+      <Header
+        isPro={isPro}
+        A_now={alcohol.A_now}
+        onOpenHelp={onOpenHelp}
+        stage={alcohol.stage}
+        scoreExact={alcohol.scoreExact}
+      />
 
       <main
         className="w-full max-w-md mx-auto flex-1 px-4 pt-3"
@@ -356,33 +170,32 @@ const needsWater =
       >
         {tab === "main" && (
           <MainPanel
-            nowSec={nowSec}
-            nextOkSec={nextOkSec}
-            waterBonusSec={waterBonusSec}
+            nowSec={nowMs}
+            nextOkSec={alcohol.nextOkSec}
+            waterBonusSec={alcohol.waterBonusSec}
             addWater={addWater}
             openDrinkPicker={openDrinkPicker}
-            addDrink={addDrink}
+            addDrink={alcohol.addDrink}
           />
         )}
 
-        {tab === "history" && <HistoryPanel history={history} />}
+        {tab === "history" && <HistoryPanel history={alcohol.history} />}
 
-{tab === "settings" && (
-  <SettingsPanel
-    weightKg={weightKg}
-    setWeightKg={setWeightKg}
-    weightInput={weightInput}
-    setWeightInput={setWeightInput}
-    age={age}
-    setAge={setAge}
-    ageInput={ageInput}
-    setAgeInput={setAgeInput}
-    sex={sex}
-    setSex={setSex}
-    endSession={endSession}
-  />
-)}
-
+        {tab === "settings" && (
+          <SettingsPanel
+            weightKg={alcohol.weightKg}
+            setWeightKg={(v) => alcohol.setUser({ weightKg: v })}
+            weightInput={weightInput}
+            setWeightInput={setWeightInput}
+            age={alcohol.age}
+            setAge={(v) => alcohol.setUser({ age: v })}
+            ageInput={ageInput}
+            setAgeInput={setAgeInput}
+            sex={alcohol.sex}
+            setSex={(v) => alcohol.setUser({ sex: v })}
+            endSession={endSession}
+          />
+        )}
       </main>
 
       <nav
@@ -408,44 +221,33 @@ const needsWater =
         </div>
       </nav>
 
-      {/* 強制水 */}
-
       {/* DrinkPicker */}
-<AnimatePresence>
-  {picker.open && (
-    <DrinkPicker
-      picker={picker}
-      setPicker={setPicker}
-      closePicker={closePicker}
-      confirmPicker={confirmPicker}
-    />
-  )}
-</AnimatePresence>
+      <AnimatePresence>
+        {picker.open && (
+          <DrinkPicker
+            picker={picker}
+            setPicker={setPicker}
+            closePicker={closePicker}
+            confirmPicker={confirmPicker}
+          />
+        )}
+      </AnimatePresence>
 
-
-{/* 必ず Picker の下に置く */}
-<AnimatePresence>
-  {(!picker.open && needsWater) && (
-    <WaterGate needsWater={needsWater} addWater={addWater} />
-  )}
-</AnimatePresence>
-
-
-
-
-
-
+      {/* 必ず Picker の下に置く */}
+      <AnimatePresence>
+        {!picker.open && needsWater && (
+          <WaterGate needsWater={needsWater} addWater={addWater} />
+        )}
+      </AnimatePresence>
 
       {/* 水エフェクト */}
-      <AnimatePresence>
-        {waterFX && <WaterFX />}
-      </AnimatePresence> 
-
-    
+      <AnimatePresence>{waterFX && <WaterFX />}</AnimatePresence>
 
       {/* おやすみオーバーレイ */}
       <AnimatePresence>
-        {goodNightOpen && <GoodNightOverlay onClose={() => setGoodNightOpen(false)} />}
+        {goodNightOpen && (
+          <GoodNightOverlay onClose={() => setGoodNightOpen(false)} />
+        )}
       </AnimatePresence>
 
       {/* Help Overlay */}
