@@ -1,260 +1,243 @@
 // src/hooks/useAlcoholState.js
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useReducer, useCallback, useRef } from "react";
 import { saveState, loadState } from "../utils/storage";
-import {
-  calcGrams,
-  calcBurnRate,
-  calcDistribution,
-  calcDecayed,
-  secondsToTarget,
-  stageInfo,
-  C_AT_100,
-} from "../utils/alcoholCalc";
 
-export function useAlcoholState() {
-  // ----- プロ基本情報 -----
-  const [isPro, setIsPro] = useState(false);
+const STORAGE_KEY = "nomel_v1";
 
-  // ----- 基本ステート -----
-  const [history, setHistory] = useState([]);
-  const [weightKg, setWeightKg] = useState(75);
-  const [age, setAge] = useState(35);
-  const [sex, setSex] = useState("male");
+function calcBurnRate(sex, age) {
+  let v = sex === "male" ? 7.2 : 6.8;
+  if (age < 30) v += 0.2;
+  if (age >= 60) v -= 0.2;
+  return Math.max(3, Math.min(12, v));
+}
 
-  // ----- アルコール状態 -----
-  const [A_g, setAg] = useState(0);
-  const [lastTs, setLastTs] = useState(Date.now());
-  const [lastAlcoholTs, setLastAlcoholTs] = useState(0);
-  const [lastDrinkGrams, setLastDrinkGrams] = useState(0);
+function calcA_now(A_g, lastTs, nowMs, burnRate) {
+  const dt_h = Math.max(0, (nowMs - lastTs) / 3600000);
+  return Math.max(0, A_g - burnRate * dt_h);
+}
 
-  // ----- ソフトドリンク -----
-  const [waterBonusSec, setWaterBonusSec] = useState(0);
-  const [waterFX, setWaterFX] = useState(false);
+const initial = {
+  booted: false,
 
-  // ----- ピッカー -----
-  const [picker, setPicker] = useState({
-    open: false,
-    kind: null,
-    label: "",
-    ml: 0,
-    abv: 0,
-    sizeKey: null,
-    note: "",
-  });
+  // alcohol core
+  A_g: 0,
+  lastTs: Date.now(),
+  history: [],
+  waterBonusSec: 0,
+  lastAlcoholTs: 0,
+  lastDrinkGrams: 0,
 
-  const [booted, setBooted] = useState(false); // 復元完了
-  const [goodNightOpen, setGoodNightOpen] = useState(false);
+  // user
+  weightKg: 75,
+  age: 35,
+  sex: "male",
+};
 
-  // ----- save/load -----
+function reducer(state, action) {
+  switch (action.type) {
+    case "BOOT": {
+      return { ...state, ...action.payload, booted: true };
+    }
+    case "SET_USER": {
+      return { ...state, ...action.payload };
+    }
+    case "SET_HISTORY": {
+      return { ...state, history: action.history };
+    }
+
+    // ここが肝：追加時に「今時点の残量」を焼いてから足す
+    case "ADD_DRINK": {
+      const { nowMs, grams, entry } = action;
+      const burnRate = calcBurnRate(state.sex, state.age);
+
+      const A_before = calcA_now(state.A_g, state.lastTs, nowMs, burnRate);
+      const A_after = A_before + grams;
+
+      return {
+        ...state,
+        A_g: A_after,
+        lastTs: nowMs,
+        lastAlcoholTs: nowMs,
+        lastDrinkGrams: grams,
+        waterBonusSec: 0,
+        history: [entry, ...state.history],
+      };
+    }
+
+    case "ADD_WATER": {
+      const { nowMs, entry, mandatory } = action;
+      return {
+        ...state,
+        history: [entry, ...state.history],
+        waterBonusSec: mandatory ? state.waterBonusSec : state.waterBonusSec + 600,
+      };
+    }
+
+    case "END_SESSION": {
+      const nowMs = action.nowMs;
+      return {
+        ...state,
+        A_g: 0,
+        lastTs: nowMs,
+        history: [],
+        waterBonusSec: 0,
+        lastAlcoholTs: 0,
+        lastDrinkGrams: 0,
+      };
+    }
+
+    default:
+      return state;
+  }
+}
+
+export default function useAlcoholState(nowMs) {
+  const [state, dispatch] = useReducer(reducer, initial);
+
+  // 「現在の state」を保存処理で参照するため
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  // load
   useEffect(() => {
     const saved = loadState();
     if (!saved) {
-      setBooted(true);
+      dispatch({ type: "BOOT", payload: {} });
       return;
     }
 
-    setHistory(saved.history ?? []);
-    setWeightKg(saved.weightKg ?? 75);
-    setAge(saved.age ?? 35);
-    setSex(saved.sex ?? "male");
-
-    // burnRate を元に自然減衰して復元
-    const br = calcBurnRate(saved.sex ?? "male", saved.age ?? 35);
-    const now = Date.now();
-    const dt_h = (now - (saved.lastTs ?? now)) / 3600000;
-    const decayed = Math.max(0, (saved.A_g ?? 0) - br * Math.max(dt_h, 0));
-
-    setAg(decayed);
-    setLastTs(now);
-    setLastAlcoholTs(saved.lastAlcoholTs ?? 0);
-    setLastDrinkGrams(saved.lastDrinkGrams ?? 0);
-    setWaterBonusSec(saved.waterBonusSec ?? 0);
-
-    setIsPro(saved.isPro ?? false);
-
-    setBooted(true);
+    dispatch({
+      type: "BOOT",
+      payload: {
+        A_g: Number(saved.A_g ?? 0),
+        lastTs: Number(saved.lastTs ?? Date.now()),
+        history: Array.isArray(saved.history) ? saved.history : [],
+        waterBonusSec: Number(saved.waterBonusSec ?? 0),
+        lastAlcoholTs: Number(saved.lastAlcoholTs ?? 0),
+        lastDrinkGrams: Number(saved.lastDrinkGrams ?? 0),
+        weightKg: Number(saved.weightKg ?? 75),
+        age: Number(saved.age ?? 35),
+        sex: saved.sex ?? "male",
+      },
+    });
   }, []);
 
+  // save
   useEffect(() => {
-    if (!booted) return;
-
+    if (!state.booted) return;
     const id = setTimeout(() => {
+      const s = stateRef.current;
       saveState({
-        A_g,
-        lastTs,
-        history,
-        lastAlcoholTs,
-        lastDrinkGrams,
-        waterBonusSec,
-        weightKg,
-        age,
-        sex,
-        isPro,
+        A_g: s.A_g,
+        lastTs: s.lastTs,
+        history: s.history,
+        waterBonusSec: s.waterBonusSec,
+        lastAlcoholTs: s.lastAlcoholTs,
+        lastDrinkGrams: s.lastDrinkGrams,
+        weightKg: s.weightKg,
+        age: s.age,
+        sex: s.sex,
       });
     }, 200);
-
     return () => clearTimeout(id);
   }, [
-    booted,
-    A_g,
-    lastTs,
-    history,
-    lastAlcoholTs,
-    lastDrinkGrams,
-    waterBonusSec,
-    weightKg,
-    age,
-    sex,
-    isPro,
+    state.booted,
+    state.A_g,
+    state.lastTs,
+    state.history,
+    state.waterBonusSec,
+    state.lastAlcoholTs,
+    state.lastDrinkGrams,
+    state.weightKg,
+    state.age,
+    state.sex,
   ]);
 
-  // --------------------------------------------------------------------
-  //  アルコール計算系
-  // --------------------------------------------------------------------
+  const burnRate = useMemo(() => calcBurnRate(state.sex, state.age), [state.sex, state.age]);
 
-  const r = useMemo(() => calcDistribution(sex), [sex]);
-  const burnRate = useMemo(() => calcBurnRate(sex, age), [sex, age]);
+  const A_now = useMemo(() => {
+    return calcA_now(state.A_g, state.lastTs, nowMs, burnRate);
+  }, [state.A_g, state.lastTs, nowMs, burnRate]);
 
-  // nowSec は useTimer.js 側で管理
-  const computeA = (nowSec) => calcDecayed(A_g, lastTs, burnRate, nowSec);
+  const scoreExact = Math.min(100, A_now * 2);
 
-  const computeScore = (A_now) => {
-    const C = r > 0 && weightKg > 0 ? A_now / (r * weightKg) : 0;
-    const score = Math.max(0, Math.min(100, (C / C_AT_100) * 100));
-    return { scoreExact: score, score100: Math.round(score) };
-  };
+  const stage = useMemo(() => {
+    const x = A_now;
+    if (x < 3) return { label: "シラフ", bar: "bg-emerald-500" };
+    if (x < 10) return { label: "ほろ酔い", bar: "bg-lime-500" };
+    if (x < 20) return { label: "パーティー", bar: "bg-yellow-500" };
+    if (x < 30) return { label: "酔い", bar: "bg-orange-500" };
+    if (x < 40) return { label: "ベロベロ", bar: "bg-red-500" };
+    return { label: "危険", bar: "bg-red-700" };
+  }, [A_now]);
 
-  // --------------------------------------------------------------------
-  //  飲酒処理
-  // --------------------------------------------------------------------
-  const addDrink = (label, ml, abv) => {
-    if (history[0]?.type === "alcohol") return; // ゲート時は NG
+  const nextOkSec = useMemo(() => {
+    const target = 15;
+    const need = A_now - target;
+    if (need <= 0) return 0;
+    const sec = (need / burnRate) * 3600 - state.waterBonusSec;
+    return Math.max(0, Math.floor(sec));
+  }, [A_now, burnRate, state.waterBonusSec]);
 
+  const addDrink = useCallback((label, ml, abv) => {
+    const grams = ml * (abv / 100) * 0.8;
     const now = Date.now();
-    const grams = calcGrams(ml, abv);
+    const entry = { id: Math.random().toString(36), ts: now, type: "alcohol", label, ml, abv };
 
-    setAg((a) => a + grams);
-    setLastTs(now);
-    setLastAlcoholTs(now);
-    setLastDrinkGrams(grams);
-    setWaterBonusSec(0);
+    dispatch({ type: "ADD_DRINK", nowMs: now, grams, entry });
+  }, []);
 
-    setHistory((h) => [
-      {
-        id: Math.random().toString(36).slice(2),
-        ts: now,
-        type: "alcohol",
-        label,
-        abv,
-        ml,
-      },
-      ...h,
-    ]);
-  };
-
-  const addWater = () => {
+  const addWater = useCallback((mandatory) => {
     const now = Date.now();
-    const mandatory = history[0]?.type === "alcohol";
+    const entry = { id: Math.random().toString(36), ts: now, type: "water", label: "ソフトドリンク/水" };
+    dispatch({ type: "ADD_WATER", nowMs: now, entry, mandatory: !!mandatory });
+  }, []);
 
-    setHistory((h) => [
-      {
-        id: Math.random().toString(36).slice(2),
-        ts: now,
-        type: "water",
-        label: "ソフトドリンク/水",
-      },
-      ...h,
-    ]);
-
-    if (mandatory) {
-      // エフェクト
-      setWaterFX(true);
-      setTimeout(() => setWaterFX(false), 1200);
-    } else {
-      setWaterBonusSec((s) => s + 600);
-    }
-  };
-
-  // --------------------------------------------------------------------
-  //  Drink Picker
-  // --------------------------------------------------------------------
-  const openDrinkPicker = (kind) => {
-    if (history[0]?.type === "alcohol") return;
-    setPicker((p) => ({ ...p, open: true, kind }));
-  };
-
-  const closePicker = () =>
-    setPicker((p) => ({
-      ...p,
-      open: false,
-    }));
-
-  const confirmPicker = () => {
-    if (!picker.label) return;
-    addDrink(picker.label, Number(picker.ml), Number(picker.abv));
-    closePicker();
-  };
-
-  // --------------------------------------------------------------------
-  //  セッション終了
-  // --------------------------------------------------------------------
-  const endSession = () => {
-    setAg(0);
-    setLastTs(Date.now());
-    setHistory([]);
-    setWaterBonusSec(0);
-    setLastAlcoholTs(0);
-    setLastDrinkGrams(0);
-
+  const endSession = useCallback(() => {
+    const now = Date.now();
+    dispatch({ type: "END_SESSION", nowMs: now });
     try {
-      localStorage.removeItem("nomel_v1");
-    } catch (_) {}
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  }, []);
 
-    setGoodNightOpen(true);
-  };
+  const setHistory = useCallback((updater) => {
+    // App.jsx 側の「temp挿入」用に残す
+    dispatch({
+      type: "SET_HISTORY",
+      history: typeof updater === "function" ? updater(stateRef.current.history) : updater,
+    });
+  }, []);
 
-  // --------------------------------------------------------------------
-  //  外部に返す
-  // --------------------------------------------------------------------
+  const setUser = useCallback((payload) => {
+    dispatch({ type: "SET_USER", payload });
+  }, []);
+
   return {
-    // 状態
-    isPro,
-    setIsPro,
-    history,
-    setHistory,
-
-    weightKg,
-    setWeightKg,
-    age,
-    setAge,
-    sex,
-    setSex,
-
-    A_g,
-    computeA,
-    computeScore,
+    // state
+    history: state.history,
+    A_now,
     burnRate,
-    r,
+    nextOkSec,
+    waterBonusSec: state.waterBonusSec,
+    lastAlcoholTs: state.lastAlcoholTs,
+    lastDrinkGrams: state.lastDrinkGrams,
 
-    lastAlcoholTs,
-    lastDrinkGrams,
-    waterBonusSec,
+    weightKg: state.weightKg,
+    age: state.age,
+    sex: state.sex,
 
-    picker,
-    setPicker,
-    openDrinkPicker,
-    closePicker,
-    confirmPicker,
+    // ui helpers
+    stage,
+    scoreExact,
 
-    waterFX,
-    goodNightOpen,
-    setGoodNightOpen,
-
-    // 操作系
+    // actions
     addDrink,
     addWater,
     endSession,
-
-    needsWater: (history[0]?.type === "alcohol"),
+    setHistory,
+    setUser,
   };
 }
