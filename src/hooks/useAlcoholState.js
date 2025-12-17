@@ -4,6 +4,9 @@ import { saveState, loadState } from "../utils/storage";
 
 const STORAGE_KEY = "nomel_v1";
 
+/* =========================
+   pure helpers
+========================= */
 function calcBurnRate(sex, age) {
   let v = sex === "male" ? 7.2 : 6.8;
   if (age < 30) v += 0.2;
@@ -16,6 +19,9 @@ function calcA_now(A_g, lastTs, nowMs, burnRate) {
   return Math.max(0, A_g - burnRate * dt_h);
 }
 
+/* =========================
+   initial state
+========================= */
 const initial = {
   booted: false,
 
@@ -33,19 +39,38 @@ const initial = {
   sex: "male",
 };
 
+/* =========================
+   reducer
+========================= */
 function reducer(state, action) {
   switch (action.type) {
     case "BOOT": {
       return { ...state, ...action.payload, booted: true };
     }
+
     case "SET_USER": {
-      return { ...state, ...action.payload };
+      const p = action.payload || {};
+      const next = { ...state };
+
+      if ("weightKg" in p) {
+        const n = Number(p.weightKg);
+        if (Number.isFinite(n)) next.weightKg = n;
+      }
+      if ("age" in p) {
+        const n = Number(p.age);
+        if (Number.isFinite(n)) next.age = n;
+      }
+      if ("sex" in p) {
+        next.sex = p.sex;
+      }
+      return next;
     }
+
     case "SET_HISTORY": {
       return { ...state, history: action.history };
     }
 
-    // ここが肝：追加時に「今時点の残量」を焼いてから足す
+    // ★ 핵심：加算前に「今時点の残量」に焼く
     case "ADD_DRINK": {
       const { nowMs, grams, entry } = action;
       const burnRate = calcBurnRate(state.sex, state.age);
@@ -65,11 +90,13 @@ function reducer(state, action) {
     }
 
     case "ADD_WATER": {
-      const { nowMs, entry, mandatory } = action;
+      const { entry, mandatory } = action;
       return {
         ...state,
         history: [entry, ...state.history],
-        waterBonusSec: mandatory ? state.waterBonusSec : state.waterBonusSec + 600,
+        waterBonusSec: mandatory
+          ? state.waterBonusSec
+          : state.waterBonusSec + 600,
       };
     }
 
@@ -91,16 +118,19 @@ function reducer(state, action) {
   }
 }
 
+/* =========================
+   hook
+========================= */
 export default function useAlcoholState(nowMs) {
   const [state, dispatch] = useReducer(reducer, initial);
 
-  // 「現在の state」を保存処理で参照するため
+  // 最新 state を参照するため
   const stateRef = useRef(state);
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
 
-  // load
+  /* ---- load ---- */
   useEffect(() => {
     const saved = loadState();
     if (!saved) {
@@ -124,9 +154,10 @@ export default function useAlcoholState(nowMs) {
     });
   }, []);
 
-  // save
+  /* ---- save ---- */
   useEffect(() => {
     if (!state.booted) return;
+
     const id = setTimeout(() => {
       const s = stateRef.current;
       saveState({
@@ -141,6 +172,7 @@ export default function useAlcoholState(nowMs) {
         sex: s.sex,
       });
     }, 200);
+
     return () => clearTimeout(id);
   }, [
     state.booted,
@@ -155,21 +187,25 @@ export default function useAlcoholState(nowMs) {
     state.sex,
   ]);
 
-  const burnRate = useMemo(() => calcBurnRate(state.sex, state.age), [state.sex, state.age]);
+  /* ---- derived ---- */
+  const burnRate = useMemo(
+    () => calcBurnRate(state.sex, state.age),
+    [state.sex, state.age]
+  );
 
-  const A_now = useMemo(() => {
-    return calcA_now(state.A_g, state.lastTs, nowMs, burnRate);
-  }, [state.A_g, state.lastTs, nowMs, burnRate]);
+  const A_now = useMemo(
+    () => calcA_now(state.A_g, state.lastTs, nowMs, burnRate),
+    [state.A_g, state.lastTs, nowMs, burnRate]
+  );
 
   const scoreExact = Math.min(100, A_now * 2);
 
   const stage = useMemo(() => {
-    const x = A_now;
-    if (x < 3) return { label: "シラフ", bar: "bg-emerald-500" };
-    if (x < 10) return { label: "ほろ酔い", bar: "bg-lime-500" };
-    if (x < 20) return { label: "パーティー", bar: "bg-yellow-500" };
-    if (x < 30) return { label: "酔い", bar: "bg-orange-500" };
-    if (x < 40) return { label: "ベロベロ", bar: "bg-red-500" };
+    if (A_now < 3) return { label: "シラフ", bar: "bg-emerald-500" };
+    if (A_now < 10) return { label: "ほろ酔い", bar: "bg-lime-500" };
+    if (A_now < 20) return { label: "パーティー", bar: "bg-yellow-500" };
+    if (A_now < 30) return { label: "酔い", bar: "bg-orange-500" };
+    if (A_now < 40) return { label: "ベロベロ", bar: "bg-red-500" };
     return { label: "危険", bar: "bg-red-700" };
   }, [A_now]);
 
@@ -181,18 +217,37 @@ export default function useAlcoholState(nowMs) {
     return Math.max(0, Math.floor(sec));
   }, [A_now, burnRate, state.waterBonusSec]);
 
+  /* ---- actions ---- */
   const addDrink = useCallback((label, ml, abv) => {
     const grams = ml * (abv / 100) * 0.8;
     const now = Date.now();
-    const entry = { id: Math.random().toString(36), ts: now, type: "alcohol", label, ml, abv };
-
-    dispatch({ type: "ADD_DRINK", nowMs: now, grams, entry });
+    dispatch({
+      type: "ADD_DRINK",
+      nowMs: now,
+      grams,
+      entry: {
+        id: Math.random().toString(36),
+        ts: now,
+        type: "alcohol",
+        label,
+        ml,
+        abv,
+      },
+    });
   }, []);
 
   const addWater = useCallback((mandatory) => {
     const now = Date.now();
-    const entry = { id: Math.random().toString(36), ts: now, type: "water", label: "ソフトドリンク/水" };
-    dispatch({ type: "ADD_WATER", nowMs: now, entry, mandatory: !!mandatory });
+    dispatch({
+      type: "ADD_WATER",
+      mandatory: !!mandatory,
+      entry: {
+        id: Math.random().toString(36),
+        ts: now,
+        type: "water",
+        label: "ソフトドリンク/水",
+      },
+    });
   }, []);
 
   const endSession = useCallback(() => {
@@ -204,10 +259,12 @@ export default function useAlcoholState(nowMs) {
   }, []);
 
   const setHistory = useCallback((updater) => {
-    // App.jsx 側の「temp挿入」用に残す
     dispatch({
       type: "SET_HISTORY",
-      history: typeof updater === "function" ? updater(stateRef.current.history) : updater,
+      history:
+        typeof updater === "function"
+          ? updater(stateRef.current.history)
+          : updater,
     });
   }, []);
 
