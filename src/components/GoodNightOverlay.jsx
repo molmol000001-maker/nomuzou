@@ -36,7 +36,7 @@ export default function GoodNightOverlay({ onClose }) {
         </motion.div>
 
         <div className="text-xl font-bold tracking-tight">おやすみなさい</div>
-        <div className="text-[12px] text-slate-500 mt-1">タップで閉じる</div>
+        <div className="text-[12px] text-slate-500 mt-1">カード外タップで閉じる</div>
 
         <motion.span
           className="absolute -z-10 inset-0 m-auto h-48 w-48 rounded-full"
