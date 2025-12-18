@@ -196,6 +196,36 @@ export default function App() {
             endSession={endSession}
           />
         )}
+        {/* ▼ ここを <main> の一番下に追加（tabに関係なく常に表示） */}
+<div className="mt-6 pb-6 text-center text-xs text-slate-500">
+  <a
+    className="underline underline-offset-2"
+    href={`${import.meta.env.BASE_URL}privacy.html`}
+    target="_blank"
+    rel="noreferrer"
+  >
+    プライバシーポリシー
+  </a>
+  <span className="mx-2">·</span>
+  <a
+    className="underline underline-offset-2"
+    href={`${import.meta.env.BASE_URL}disclaimer.html`}
+    target="_blank"
+    rel="noreferrer"
+  >
+    免責事項
+  </a>
+  <span className="mx-2">·</span>
+  <a
+    className="underline underline-offset-2"
+    href={`${import.meta.env.BASE_URL}about.html`}
+    target="_blank"
+    rel="noreferrer"
+  >
+    このアプリについて
+  </a>
+</div>
+
       </main>
 
       <nav
